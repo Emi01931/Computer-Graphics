@@ -24,9 +24,12 @@ float fov_factor = 200;
 bool is_running = false;
 int previous_frame_time = 0;
 
-int radious = 10;
-int radiousA = 35;
-int typeOfFigure = 2; // 0 = cube, 1 = circle, 2 .obj
+
+int r = 300;
+int xc = 450;
+int yx = 340;
+
+int typeOfFigure = 1; // 0 = cube, 1 = circle, 2 .obj
 
 void setup(void){
     //Cada pixel usa el tipo de dato uin32_t
@@ -42,30 +45,6 @@ void setup(void){
                 for(float z=-1;z<=1;z+=0.25){
                     vec3_t new_point = {.x = x,.y = y,.z = z};
                     cube_points[point_count++] = new_point;
-                }
-            }
-        }
-    }
-    
-    if (typeOfFigure == 1){
-        for(float row = -radious; row <= radious; row += 0.1){
-            for(float col = -radious; col <= radious; col += 0.1){
-                float x = col - radious/2;
-                float y = radious/2 - row;
-                float sumsq = x*x + y*y;
-
-                vec3_t vec_temp = {
-                    .x = row*radiousA,
-                    .y = col*radiousA,
-                    .z = 0
-                };
-
-                //printf("\n%i: x=%f    y=%f",point_count+1, vec_temp.x, vec_temp.y);
-
-                if((sumsq < radious + 0.5) && (sumsq > radious - 0.5)){
-                    cube_points[point_count] = vec_temp;
-                    //printf("\n%i: x=%f    y=%f",point_count+1, cube_points[point_count].x, cube_points[point_count].y);
-                    point_count++;
                 }
             }
         }
@@ -168,47 +147,33 @@ void update(void){
 
 void render(void){
     draw_grid();
-    for(int i = 0; i<N_POINTS; i++){
-        vec2_t projected_point = projected_points[i];
-        if(i != N_POINTS-1){
-            draw_line(projected_points[i].x, projected_points[i].y, projected_points[i+1].x, projected_points[i+1].y, 0xFFFF00FF);
+
+    if(typeOfFigure == 0){
+        for(int i = 0; i<N_POINTS; i++){
+            vec2_t projected_point = projected_points[i];
+            if(i != N_POINTS-1){
+                draw_line(projected_points[i].x, projected_points[i].y, projected_points[i+1].x, projected_points[i+1].y, 0xFFFF00FF);
+            }
         }
     }
+    
+    if (typeOfFigure == 1){
+        int d = 3-2*r;
+        int x = 0;
+        int y = r;
 
-    for(int i = 0; i< array_length(mesh.faces); i++){
-        printf("\n%i", i);
-        for (int j = 0; j < 3; j++){
-            if (j==0){
-                int verticeTempA = mesh.faces[i].a - 1;
-                int verticeTempB = mesh.faces[i].b - 1;
-                //printf("\na: %i, x: %f, y: %f", mesh.faces[i].a, mesh.vertices[verticeTempA].x, mesh.vertices[verticeTempA].y);
-                //printf("\tb: %i, x: %f, y: %f", mesh.faces[i].b, mesh.vertices[verticeTempB].x, mesh.vertices[verticeTempB].y);
-                draw_line(mesh.vertices[verticeTempA].x, mesh.vertices[verticeTempA].y, mesh.vertices[verticeTempB].x, mesh.vertices[verticeTempB].y, mesh.faces[i].color);
-                printf("\nPunto 1");
+        draw_circle(x,y,xc,xc,0x00FF0000);
+        while (y>=x){
+            if (d>=0){
+                y--;
+                d = d+4*(x-y)+r;
+            }else{
+                d = d+4+x+6;
             }
-
-            if (j==1){
-                //printf("\nc: %i", mesh.faces[i].c);
-                //printf("\tb: %i", mesh.faces[i].b);
-                int verticeTempC = mesh.faces[i].c - 1;
-                int verticeTempB = mesh.faces[i].b - 1;
-                draw_line(mesh.vertices[verticeTempB].x, mesh.vertices[verticeTempB].y, mesh.vertices[verticeTempC].x, mesh.vertices[verticeTempC].y, mesh.faces[i].color);
-                printf("\tPunto 2");
-            }
-
-            if (j==2){
-                //printf("\na: %i", mesh.faces[i].a);
-                //printf("\tc: %i", mesh.faces[i].c);
-                int verticeTempA = mesh.faces[i].a - 1;
-                int verticeTempC = mesh.faces[i].c - 1;
-                draw_line(mesh.vertices[verticeTempC].x, mesh.vertices[verticeTempC].y, mesh.vertices[verticeTempA].x, mesh.vertices[verticeTempA].y, mesh.faces[i].color);
-                printf("\tPunto 3");
-            }
-            
+            x++;
+            draw_circle(x,y,xc,xc,0x00FF0000);
         }
-        
     }
-
 
     render_color_buffer();
     clear_color_buffer(0xFF000000);
@@ -218,9 +183,6 @@ void render(void){
 
 
 int main(int argc, char *argv[]){
-/**/
-    //printf("%f", mesh.vertices->x);
-    
 
     is_running = initialize_window();
     setup();

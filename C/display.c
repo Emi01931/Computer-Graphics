@@ -151,3 +151,18 @@ void draw_line(int x0, int y0, int x1, int y1, color_t color)
         }
     }  
 }  
+
+void draw_circle(int x, int y, int xc, int yc, color_t color){
+    draw_pixel(xc+x, yc+y, color);      //1
+    draw_pixel(xc-x, yc+y, color);
+    draw_pixel(xc-y, yc+x, color);     //3
+    draw_pixel(xc-y, yc-x, color);
+    draw_pixel(xc-x, yc-y, color);     //5
+    draw_pixel(xc+x, yc-y, color);
+    draw_pixel(xc+y, yc-x, color);
+    draw_pixel(xc+y, yc+x, color);     //8
+}
+
+void draw_ellipse(int rx, int ry, int xc, int yc){
+    
+}
