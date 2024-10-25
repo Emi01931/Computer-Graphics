@@ -169,7 +169,7 @@ void draw_ellipse(int rx, int ry, int xc, int yc, color_t color){
     y = ry;
  
     // Decision parameter for region 1, since the ellipse starts at (0,ry) the desicion parameter is as follows
-    d1 = (ry * ry) - (rx * rx * ry) + (0.25 * rx * rx);
+    d1 = (ry * ry) - (rx * rx * ry) + (0.25 * rx * rx); //funtion of an ellipse
     dx = 2 * ry * ry * x;
     dy = 2 * rx * rx * y;
 
@@ -182,7 +182,9 @@ void draw_ellipse(int rx, int ry, int xc, int yc, color_t color){
         draw_pixel(xc + x, yc - y, color);
         draw_pixel(xc - x, yc - y, color);
 
-        if (d1 < 0){
+        //to draw we have two options (x_k + 1, y_k) or (x_k + 1, y_k -1)
+
+        if (d1 < 0){    //inside ellipse
             x++;
             dx = dx + (2 * ry * ry);
             d1 = d1 + (ry * ry) + dx;
@@ -204,15 +206,13 @@ void draw_ellipse(int rx, int ry, int xc, int yc, color_t color){
     // Plotting points of region 2
     while (y >= 0) {
  
-        // printing points based on 4-way symmetry
         draw_pixel(xc + x, yc + y, color);
         draw_pixel(xc - x, yc + y, color);
         draw_pixel(xc + x, yc - y, color);
         draw_pixel(xc - x, yc - y, color);
  
-        // Checking and updating parameter
-        // value based on algorithm
-        if (d2 > 0) {
+        // (x_k, y_k -1) or (x_k + 1, y_k -1)
+        if (d2 > 0) { //outside ellipse
             y--;
             dy = dy - (2 * rx * rx);
             d2 = d2 + (rx * rx) - dy;
