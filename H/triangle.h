@@ -16,7 +16,7 @@ typedef struct {
     vec2_t points[3];
 } triangle_t;
 
-extern triangle_t* ArrayTriangle = NULL;
+extern triangle_t* ArrayTriangle;// = NULL;
 
 void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 

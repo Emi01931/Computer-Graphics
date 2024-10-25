@@ -15,7 +15,7 @@
 vec3_t cube_points[N_POINTS];
 vec2_t projected_points[N_POINTS];
 
-//triangle_t* ArrayTriangle = NULL;
+triangle_t* ArrayTriangle = NULL;
 
 vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
@@ -219,9 +219,9 @@ void render(void){
     render_color_buffer();
     clear_color_buffer(0xFF000000);
     printf("\nBefore Array free");
-    array_free(ArrayTriangle);
+    //array_free(ArrayTriangle);
     //memset(ArrayTriangle, 0, sizeof(ArrayTriangle));
-    //free(ArrayTriangle);
+    free(ArrayTriangle);
     printf("\tAfter Array free");
     SDL_RenderPresent(renderer);
 }
