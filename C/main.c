@@ -29,7 +29,10 @@ int r = 300;
 int xc = 450;
 int yx = 340;
 
-int typeOfFigure = 1; // 0 = cube, 1 = circle, 2 .obj
+int rx = 150;
+int ry = 100;
+
+int typeOfFigure = 3; // 0 = cube, 1 = circle, 2 = .obj, 3 = ellipse
 
 void setup(void){
     //Cada pixel usa el tipo de dato uin32_t
@@ -157,7 +160,7 @@ void render(void){
         }
     }
     
-    if (typeOfFigure == 1){
+    if(typeOfFigure == 1){
         int d = 3-2*r;
         int x = 0;
         int y = r;
@@ -173,6 +176,10 @@ void render(void){
             x++;
             draw_circle(x,y,xc,xc,0x00FF0000);
         }
+    }
+
+    if(typeOfFigure == 3){
+        draw_ellipse(rx, ry, xc, yx, 0x0000ff00);
     }
 
     render_color_buffer();

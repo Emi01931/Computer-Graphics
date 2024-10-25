@@ -163,6 +163,66 @@ void draw_circle(int x, int y, int xc, int yc, color_t color){
     draw_pixel(xc+y, yc+x, color);     //8
 }
 
-void draw_ellipse(int rx, int ry, int xc, int yc){
-    
+void draw_ellipse(int rx, int ry, int xc, int yc, color_t color){
+    float dx, dy, d1, d2, x, y;
+    x = 0;
+    y = ry;
+ 
+    // Decision parameter for region 1, since the ellipse starts at (0,ry) the desicion parameter is as follows
+    d1 = (ry * ry) - (rx * rx * ry) + (0.25 * rx * rx);
+    dx = 2 * ry * ry * x;
+    dy = 2 * rx * rx * y;
+
+    while (dx < dy) {   //if dy is minor than dx then that means that the slope is <1, this is a sign that region 2 started
+ 
+        // first quadrant point
+        draw_pixel(xc + x, yc + y, color);
+        //mirror points of the first quadrant to draw half of the ellipse
+        draw_pixel(xc - x, yc + y, color);
+        draw_pixel(xc + x, yc - y, color);
+        draw_pixel(xc - x, yc - y, color);
+
+        if (d1 < 0){
+            x++;
+            dx = dx + (2 * ry * ry);
+            d1 = d1 + (ry * ry) + dx;
+        }
+        else{
+            x++;
+            y--;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d1 = d1 + dx - dy + (ry * ry);
+        }
+    }
+ 
+    // Decision parameter for region 2
+    d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5)))
+         + ((rx * rx) * ((y - 1) * (y - 1)))
+         - (rx * rx * ry * ry);
+ 
+    // Plotting points of region 2
+    while (y >= 0) {
+ 
+        // printing points based on 4-way symmetry
+        draw_pixel(xc + x, yc + y, color);
+        draw_pixel(xc - x, yc + y, color);
+        draw_pixel(xc + x, yc - y, color);
+        draw_pixel(xc - x, yc - y, color);
+ 
+        // Checking and updating parameter
+        // value based on algorithm
+        if (d2 > 0) {
+            y--;
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + (rx * rx) - dy;
+        }
+        else {
+            y--;
+            x++;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + dx - dy + (rx * rx);
+        }
+    }
 }
