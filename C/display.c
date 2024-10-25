@@ -129,17 +129,11 @@ void destroy_window(void){
     SDL_Quit();
 }
 
-void draw_line(int x0, int y0, int x1, int y1, color_t color)  
-{  
+void draw_line(int x0, int y0, int x1, int y1, color_t color){  
     float dx, dy, p, x, y;  
-    dx=x1-x0;  
-    dy=y1-y0;  
-    x=x0;  
-    y=y0;  
-    p=2*dy-dx;  
+    dx=x1-x0;  dy=y1-y0;  x=x0;  y=y0;  p=2*dy-dx;  
 
-    while(x<=x1)  
-    { 
+    while(x<=x1){ 
         draw_rect(x + window_width/2, y + window_height/2, 4, 4, color);    
         x++;
         if(p<0){
