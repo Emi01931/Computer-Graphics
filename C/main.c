@@ -149,7 +149,7 @@ void update(void){
     world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
     world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
-    for(int i = 0; i<8; i++){
+    for(int i = 0; i< array_length(mesh.faces); i++){
         int verticeCara[3] = {          //se guardan los vertices por cara
             mesh.faces[i].a - 1, 
             mesh.faces[i].b - 1,
@@ -170,7 +170,7 @@ void update(void){
         for(int j = 0; j<3;j++){
             vec4_t transformed_point = vec4_from_vec3(verticesCara[j]);
             transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
-            printf("%f, %f, %f\n", transformed_point.x, transformed_point.y, transformed_point.z);
+            //printf("%f, %f, %f\n", transformed_point.x, transformed_point.y, transformed_point.z);
             transformed_points[j] = transformed_point;
             vec2_t projected_point = project(vec3_from_vec4(transformed_points[0]));
             projected_points[j] = projected_point;
@@ -196,7 +196,7 @@ void render(void){
     draw_grid();
 
     //printf("\n%i", array_length(ArrayTriangle));
-    for (int i = 0; i <12; i++){
+    for (int i = 0; i <array_length(ArrayTriangle); i++){
         triangle_t tempTriangle = ArrayTriangle[i];
         //printf("\n%f, %f", tempTriangle.points[0].x, tempTriangle.points[0].y);
         //printf("%f, %f", tempTriangle.points[1].x, tempTriangle.points[1].y);
@@ -210,7 +210,13 @@ void render(void){
     }
 
 
-    //draw_line(20,20,200,200, 0x00ff0000);
+//testing draw_line
+    //draw_line(10,20,60,20, 0x0000ff00); //horizontal line left to right
+    //draw_line(60,20,10,20, 0x0000ff00); //horizontal line right to left
+    draw_line(60,20,60,100, 0x0000ff00);
+    draw_line(60,20,65,100, 0x00ffff00);
+
+
     //draw_pixel(ArrayTriangle->points[0].x, ArrayTriangle->points[0].y, 0x00ff0000);
     //draw_pixel(ArrayTriangle->points[1].x, ArrayTriangle->points[1].y, 0x00ff0000);
     //draw_pixel(ArrayTriangle->points[2].x, ArrayTriangle->points[2].y, 0x00ff0000);

@@ -130,18 +130,57 @@ void destroy_window(void){
 }
 
 void draw_line(int x0, int y0, int x1, int y1, color_t color){  
-    float dx, dy, p, x, y;  
-    dx=x1-x0;  dy=y1-y0;  x=x0;  y=y0;  p=2*dy-dx;  
+    int dx, dy, p, x, y;
+	dx=x1-x0;   dy=y1-y0;   x=x0;   y=y0;   p=2*dy-dx;
 
-    while(x<=x1){ 
-        draw_pixel(x + window_width/2, y + window_height/2, color);    
-        x++;
-        if(p<0){
-            p=p+2*dy;
+    if(x<x1){   //for lines which goes from left to right
+        while(x<x1){
+            if(p>=0)
+            {
+                draw_pixel(x,y,color);
+                y=y+1;
+                p=p+2*dy-2*dx;
+            }
+            else
+            {
+                draw_pixel(x,y,color);
+                p=p+2*dy;
+            }
+            x=x+1;
         }
-        else{
-            p = p+2*dy-2*dx;
-            y++;
+    }
+
+    if(x>x1){   //for lines which goes from right to left 
+        while(x>x1){
+            if(p>=0)
+            {
+                draw_pixel(x,y,color);
+                y=y+1;
+                p=p+2*dy-2*dx;
+            }
+            else
+            {
+                draw_pixel(x,y,color);
+                p=p+2*dy;
+            }
+            x=x-1;
         }
-    }  
+    }
+
+    if(x=x1){   //for vertical lines
+        if (y<y1){
+            while (y<y1){
+                draw_pixel(x,y,color);
+                y++;
+            }
+        }
+        
+        if (y>y1){
+            while (y>y1){
+                draw_pixel(x,y,color);
+                y--;
+            }
+        }
+    }
+
 }  

@@ -4,21 +4,21 @@
 #include "matrix.h"
 
 mat4_t mat4_identity(void){
-    mat4_t matriz = {   1.0,    0.0,    0.0,    0.0,
-                        0.0,    1.0,    0.0,    0.0,
-                        0.0,    0.0,    1.0,    0.0,
-                        0.0,    0.0,    0.0,    1.0
-                    };
+    mat4_t matriz = {{
+            {1,    0,    0,    0},
+            {0,    1,    0,    0},
+            {0,    0,    1,    0},
+            {0,    0,    0,    1}
+                    }};
     return matriz;
 }
 
 mat4_t mat4_make_scale(float sx, float sy, float sz){
-    mat4_t matriz = {   sx,0.0,0.0,0.0,
-                        0.0,sy,0.0,0.0,
-                        0.0,0.0,sz,0.0,
-                        0.0,0.0,0.0,1.0
-                    };
-    return matriz;
+    mat4_t m = mat4_identity();
+        m.m[0][0] = sx;
+        m.m[1][1] = sy;
+        m.m[2][2] = sz;
+    return m;
 }
 mat4_t mat4_make_translation(float tx, float ty, float tz){
     mat4_t matriz = {   1.0,0.0,0.0,tx,
