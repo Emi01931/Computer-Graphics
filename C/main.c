@@ -13,7 +13,6 @@
 
 #define N_POINTS (9*9*9)
 vec3_t cube_points[N_POINTS];
-vec2_t projected_points[N_POINTS];
 
 triangle_t* ArrayTriangle = NULL;
 
@@ -21,7 +20,7 @@ vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
 vec3_t cube_scale = {1,1,1};
 
-float fov_factor = 200;
+float fov_factor = 200;//640;
 bool is_running = false;
 int previous_frame_time = 0;
 
@@ -76,6 +75,7 @@ void setup(void){
         char fileName[] = "cube.obj";
         //load_obj_file_data(fileName);
         load_cube_mesh_data();
+        //printf("%f, %f, %f\n", mesh.vertices[0].x, mesh.vertices[0].y, mesh.vertices[0].z);
     }
 }
 
@@ -122,14 +122,15 @@ vec2_t project(vec3_t v3){
 
 
 void update(void){
-    cube_rotation.x += 0.01;
-    cube_rotation.y += 0.01;
-    cube_rotation.z += 0.01;
+    ArrayTriangle = NULL;
+    cube_rotation.x += 0.1;
+    cube_rotation.y += 0.1;
+    cube_rotation.z += 0.1;
     //cube_rotation.x = 0;
     //cube_rotation.y = 0;
     //cube_rotation.z = 0;
 
-    cube_translation.z -= 0.02;
+    cube_translation.z = 5;
     //cube_translation.z = 0;
 
     mat4_t scale_matrix = mat4_make_scale(cube_scale.x, cube_scale.y, cube_scale.z);
@@ -148,53 +149,37 @@ void update(void){
     world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
     world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
-    for(int i = 0; i<array_length(mesh.faces); i++){
+    for(int i = 0; i<8; i++){
         int verticeCara[3] = {          //se guardan los vertices por cara
             mesh.faces[i].a - 1, 
             mesh.faces[i].b - 1,
             mesh.faces[i].c - 1
         };
-        vec3_t va = {
-            .x = mesh.vertices[verticeCara[0]].x,
-            .y = mesh.vertices[verticeCara[0]].y,
-            .z = mesh.vertices[verticeCara[0]].z
-        };
-        vec3_t vb = {
-            .x = mesh.vertices[verticeCara[1]].x,
-            .y = mesh.vertices[verticeCara[1]].y,
-            .z = mesh.vertices[verticeCara[1]].z
-        };
-        vec3_t vc = {
-            .x = mesh.vertices[verticeCara[2]].x,
-            .y = mesh.vertices[verticeCara[2]].y,
-            .z = mesh.vertices[verticeCara[2]].z
-        };
+        vec3_t verticesCara[3];
+
+        verticesCara[0] = mesh.vertices[verticeCara[0]];
+        verticesCara[1] = mesh.vertices[verticeCara[1]];
+        verticesCara[2] = mesh.vertices[verticeCara[2]];
+
+        //printf("%f, %f, %f\n", mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z);
+
+        vec4_t transformed_points[3];
+        vec2_t projected_points[3];
 
 //Transformando y proyectando el vertice a
-        vec4_t transformed_points[3];
-        vec4_t transformed_point = vec4_from_vec3(va);
-        transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
-        transformed_points[0] = transformed_point;
-        vec2_t projected_point = project(vec3_from_vec4(transformed_points[0]));
-        projected_points[0] = projected_point;
-        draw_rect(projected_points[0].x + window_width/2, projected_points[0].y + window_height/2, 4, 4, 0x0000ff00); //green
-
-//Transformando y proyectando el vertice b
-        transformed_point = vec4_from_vec3(vb);
-        transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
-        transformed_points[1] = transformed_point;
-        projected_point = project(vec3_from_vec4(transformed_points[1]));
-        projected_points[1] = projected_point;
-        draw_rect(projected_points[1].x + window_width/2, projected_points[1].y + window_height/2, 4, 4, 0x000000ff); //blue
-
-//Transformando y proyectando el vertice c
-        transformed_point = vec4_from_vec3(vc);
-        transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
-        transformed_points[2] = transformed_point;
-        projected_point = project(vec3_from_vec4(transformed_points[2]));
-        projected_points[2] = projected_point;
-        draw_rect(projected_points[2].x + window_width/2, projected_points[2].y + window_height/2, 4 , 4 , 0x00ff0000); //red
-
+        for(int j = 0; j<3;j++){
+            vec4_t transformed_point = vec4_from_vec3(verticesCara[j]);
+            transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
+            printf("%f, %f, %f\n", transformed_point.x, transformed_point.y, transformed_point.z);
+            transformed_points[j] = transformed_point;
+            vec2_t projected_point = project(vec3_from_vec4(transformed_points[0]));
+            projected_points[j] = projected_point;
+            projected_points[j].x += (window_width/2);
+            projected_points[j].y += (window_height/2);
+        }
+        
+        //draw_rect(projected_points[0].x + window_width/2, projected_points[0].y + window_height/2, 4, 4, 0x0000ff00); //green
+        
         triangle_t trianguloProyectado = {  //Se guardan los puntos proyectados que conforman el triangulo
             .points[0] = projected_points[0],
             .points[1] = projected_points[1],
@@ -210,19 +195,27 @@ void update(void){
 void render(void){
     draw_grid();
 
-    printf("\n%i", array_length(ArrayTriangle));
-    for (int i = 0; i < array_length(ArrayTriangle); i++)
-    {
-        draw_triangle(ArrayTriangle->points[0].x, ArrayTriangle->points[0].y, ArrayTriangle->points[1].x, ArrayTriangle->points[1].y, ArrayTriangle->points[2].x, ArrayTriangle->points[2].y, 0xFFFF00FF);
+    //printf("\n%i", array_length(ArrayTriangle));
+    for (int i = 0; i <12; i++){
+        triangle_t tempTriangle = ArrayTriangle[i];
+        //printf("\n%f, %f", tempTriangle.points[0].x, tempTriangle.points[0].y);
+        //printf("%f, %f", tempTriangle.points[1].x, tempTriangle.points[1].y);
+        //printf("%f, %f", tempTriangle.points[2].x, tempTriangle.points[2].y);
+        //draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, 0xFFFF00FF);
+
+
+        draw_rect(tempTriangle.points[0].x, tempTriangle.points[0].y,4,4, 0x00ff0000);
+        draw_rect(tempTriangle.points[1].x, tempTriangle.points[1].y,4,4, 0x00ff0000);
+        draw_rect(tempTriangle.points[2].x, tempTriangle.points[2].y,4,4, 0x00ff0000);
     }
 
+
+    //draw_line(20,20,200,200, 0x00ff0000);
+    //draw_pixel(ArrayTriangle->points[0].x, ArrayTriangle->points[0].y, 0x00ff0000);
+    //draw_pixel(ArrayTriangle->points[1].x, ArrayTriangle->points[1].y, 0x00ff0000);
+    //draw_pixel(ArrayTriangle->points[2].x, ArrayTriangle->points[2].y, 0x00ff0000);
     render_color_buffer();
     clear_color_buffer(0xFF000000);
-    printf("\nBefore Array free");
-    //array_free(ArrayTriangle);
-    //memset(ArrayTriangle, 0, sizeof(ArrayTriangle));
-    free(ArrayTriangle);
-    printf("\tAfter Array free");
     SDL_RenderPresent(renderer);
 }
 

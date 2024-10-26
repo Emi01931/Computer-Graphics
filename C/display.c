@@ -134,7 +134,7 @@ void draw_line(int x0, int y0, int x1, int y1, color_t color){
     dx=x1-x0;  dy=y1-y0;  x=x0;  y=y0;  p=2*dy-dx;  
 
     while(x<=x1){ 
-        draw_rect(x + window_width/2, y + window_height/2, 4, 4, color);    
+        draw_pixel(x + window_width/2, y + window_height/2, color);    
         x++;
         if(p<0){
             p=p+2*dy;
