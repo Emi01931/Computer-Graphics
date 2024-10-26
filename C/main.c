@@ -211,10 +211,10 @@ void render(void){
 
 
 //testing draw_line
-    //draw_line(10,20,60,20, 0x0000ff00); //horizontal line left to right
-    //draw_line(60,20,10,20, 0x0000ff00); //horizontal line right to left
-    draw_line(60,20,60,100, 0x0000ff00);
-    draw_line(60,20,65,100, 0x00ffff00);
+    draw_line(10,20,60,20, 0x00ff0000); //RED: horizontal line left to right
+    draw_line(60,20,10,20, 0x0000ff00); //GREEN: horizontal line right to left
+    draw_line(60,20,60,100, 0x000000ff);//BLUE: Downwards vertical
+    draw_line(60,20,65,100, 0x00ffff00);//yellow: rightwards big slope
 
 
     //draw_pixel(ArrayTriangle->points[0].x, ArrayTriangle->points[0].y, 0x00ff0000);

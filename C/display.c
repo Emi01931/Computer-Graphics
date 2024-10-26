@@ -1,16 +1,16 @@
 #include "display.h"
 #include "vector.h"
 
-
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-SDL_Texture* color_buffer_texture = NULL;
-uint32_t* color_buffer = NULL; // Some books like to call this as "frame buffer." For all practical purposes, color buffer & frame buffer are the same thing; they are a mirror in memory of the pixels that we want to see in our display.
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
+SDL_Texture *color_buffer_texture = NULL;
+uint32_t *color_buffer = NULL; // Some books like to call this as "frame buffer." For all practical purposes, color buffer & frame buffer are the same thing; they are a mirror in memory of the pixels that we want to see in our display.
 int window_width = 0;
 int window_height = 0;
 
 bool initialize_window(void){
-    if(SDL_Init(SDL_INIT_EVERYTHING) !=0){
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    {
         fprintf(stderr, "Error initializing SDL.\n");
         return false;
     }
@@ -18,34 +18,33 @@ bool initialize_window(void){
     // Use SDL to query what is the fullscreen maximum width and height
     SDL_DisplayMode displayMode;
     SDL_GetCurrentDisplayMode(
-            0, // the device
-            &displayMode
-    );
-    window_width = displayMode.w; //800;
-    window_height = displayMode.h; //600;
+        0, // the device
+        &displayMode);
+    window_width = displayMode.w;  // 800;
+    window_height = displayMode.h; // 600;
 
-    //Create a SDL window
+    // Create a SDL window
     window = SDL_CreateWindow(
-            NULL, // title
-            SDL_WINDOWPOS_CENTERED, //pos x
-            SDL_WINDOWPOS_CENTERED, //pos y
-            window_width, // width
-            window_height, // height
-            SDL_WINDOW_BORDERLESS
-    );
+        NULL,                   // title
+        SDL_WINDOWPOS_CENTERED, // pos x
+        SDL_WINDOWPOS_CENTERED, // pos y
+        window_width,           // width
+        window_height,          // height
+        SDL_WINDOW_BORDERLESS);
 
-    if(!window){
+    if (!window)
+    {
         fprintf(stderr, "Error creating SDL window.\n");
         return false;
     }
 
-    //Create a SDL renderer
+    // Create a SDL renderer
     renderer = SDL_CreateRenderer(
-            window,
-            -1,
-            0
-    );
-    if(!renderer){
+        window,
+        -1,
+        0);
+    if (!renderer)
+    {
         fprintf(stderr, "Error creating SDL renderer.\n");
         return false;
     }
@@ -54,20 +53,22 @@ bool initialize_window(void){
 
     // Creating a SDL texture that is used to display the color buffer
     color_buffer_texture = SDL_CreateTexture(
-            renderer,
-            SDL_PIXELFORMAT_ARGB8888,
-            SDL_TEXTUREACCESS_STREAMING,
-            window_width,
-            window_height
-    );
+        renderer,
+        SDL_PIXELFORMAT_ARGB8888,
+        SDL_TEXTUREACCESS_STREAMING,
+        window_width,
+        window_height);
 
     return true;
 }
 
-void draw_grid(void) {
-    for (int y = 0; y < window_height; y++) {
-        for (int x = 0; x < window_width; x++) {
-            if (x % 10 == 0 || y % 10 == 0) {
+void draw_grid(void){
+    for (int y = 0; y < window_height; y++)
+    {
+        for (int x = 0; x < window_width; x++)
+        {
+            if (x % 10 == 0 || y % 10 == 0)
+            {
                 color_buffer[(window_width * y) + x] = 0xFF444444;
             }
         }
@@ -83,14 +84,17 @@ void draw_grid(void) {
 }*/
 
 void draw_pixel(int x, int y, uint32_t color){
-    if(x>=0 && x<window_width && y>=0 && y<window_height){
+    if (x >= 0 && x < window_width && y >= 0 && y < window_height)
+    {
         color_buffer[(window_width * y) + x] = color;
     }
 }
 
-void draw_rect(int x, int y, int width, int height, uint32_t color) {
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
+void draw_rect(int x, int y, int width, int height, uint32_t color){
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
             int current_x = x + i;
             int current_y = y + j;
             draw_pixel(current_x, current_y, color);
@@ -102,22 +106,23 @@ void draw_rect(int x, int y, int width, int height, uint32_t color) {
 void render_color_buffer(void){
     // Copy the frame buffer to the texture
     SDL_UpdateTexture(
-            color_buffer_texture,
-            NULL, // No rectangle area to update. NULL indicates that update the entire texture
-            color_buffer, // the source, raw pixel data
-            (int)(window_width * sizeof(uint32_t)) // The number of bytes in a row of pixel data
+        color_buffer_texture,
+        NULL,                                  // No rectangle area to update. NULL indicates that update the entire texture
+        color_buffer,                          // the source, raw pixel data
+        (int)(window_width * sizeof(uint32_t)) // The number of bytes in a row of pixel data
     );
 
     // Copy the texture (or portion) to the current rendering target
     SDL_RenderCopy(renderer,
                    color_buffer_texture,
                    NULL, // render the entire texture, no specific rectangle
-                   NULL // the entire rendering target, no specific rectangle (section)
+                   NULL  // the entire rendering target, no specific rectangle (section)
     );
 }
 
 void clear_color_buffer(uint32_t color){
-    for(int i = 0; i < window_width * window_height; i++){
+    for (int i = 0; i < window_width * window_height; i++)
+    {
         color_buffer[i] = color;
     }
 }
@@ -129,58 +134,56 @@ void destroy_window(void){
     SDL_Quit();
 }
 
-void draw_line(int x0, int y0, int x1, int y1, color_t color){  
-    int dx, dy, p, x, y;
-	dx=x1-x0;   dy=y1-y0;   x=x0;   y=y0;   p=2*dy-dx;
+void draw_line(int x0, int y0, int x1, int y1, color_t color){
+    int y = y0;
 
-    if(x<x1){   //for lines which goes from left to right
-        while(x<x1){
-            if(p>=0)
-            {
-                draw_pixel(x,y,color);
-                y=y+1;
-                p=p+2*dy-2*dx;
+    int dx = x1 - x0;
+    int dy = y1 - y0;
+    int slope = 2 * dy;
+    int error = -dx;
+    int errorInc = -2 * dx;
+
+    if(x0<x1){  //left to right
+        for (int x = x0; x <= x1; ++x){
+            draw_pixel(x, y, color);
+            error += slope;
+
+            if (error >= 0){
+                y++;
+                error += errorInc;
             }
-            else
-            {
-                draw_pixel(x,y,color);
-                p=p+2*dy;
-            }
-            x=x+1;
         }
+        return;   
     }
 
-    if(x>x1){   //for lines which goes from right to left 
-        while(x>x1){
-            if(p>=0)
-            {
-                draw_pixel(x,y,color);
-                y=y+1;
-                p=p+2*dy-2*dx;
+    if(x0>x1){  //right to left
+        for (int x = x0; x >= x1; --x){
+            draw_pixel(x, y, color);
+            error += slope;
+
+            if (error >= 0){
+                y++;
+                error += errorInc;
             }
-            else
-            {
-                draw_pixel(x,y,color);
-                p=p+2*dy;
-            }
-            x=x-1;
         }
+        return;  
     }
 
-    if(x=x1){   //for vertical lines
+    if(x0=x1){   //for vertical lines
         if (y<y1){
             while (y<y1){
-                draw_pixel(x,y,color);
+                draw_pixel(x0,y,color);
                 y++;
             }
+            return;  
         }
         
         if (y>y1){
             while (y>y1){
-                draw_pixel(x,y,color);
+                draw_pixel(x0,y,color);
                 y--;
             }
+            return;  
         }
     }
-
-}  
+}
