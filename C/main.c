@@ -73,8 +73,8 @@ void setup(void){
 
     if(typeOfFigure == 2){
         char fileName[] = "cube.obj";
-        //load_obj_file_data(fileName);
-        load_cube_mesh_data();
+        load_obj_file_data(fileName);
+        //load_cube_mesh_data();
         //printf("%f, %f, %f\n", mesh.vertices[0].x, mesh.vertices[0].y, mesh.vertices[0].z);
     }
 }
@@ -161,11 +161,6 @@ void update(void){
         verticesCara[1] = mesh.vertices[verticeCara[1]];
         verticesCara[2] = mesh.vertices[verticeCara[2]];
 
-        //printf("\n\nMesh vertice; %i: %f, %f, %f", i, mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z);
-        //printf("\n\nvertice cara %i: %f, %f", i, verticesCara[0].x, verticesCara[0].y);
-        //printf("\t%f, %f", verticesCara[1].x, verticesCara[1].y);
-        //printf("\t%f, %f", verticesCara[2].x, verticesCara[2].y);
-
         vec4_t transformed_points[3];
         vec2_t projected_points[3];
 
@@ -173,7 +168,6 @@ void update(void){
         for(int j = 0; j<3;j++){
             vec4_t transformed_point = vec4_from_vec3(verticesCara[j]);
             transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
-            //printf("%f, %f, %f\n", transformed_point.x, transformed_point.y, transformed_point.z);
             transformed_points[j] = transformed_point;
             vec2_t projected_point = project(vec3_from_vec4(transformed_points[j]));
             projected_points[j] = projected_point;
@@ -181,52 +175,28 @@ void update(void){
             projected_points[j].y += (window_height/2);
         }
         
-        //draw_rect(projected_points[0].x + window_width/2, projected_points[0].y + window_height/2, 4, 4, 0x0000ff00); //green
-        
         triangle_t trianguloProyectado = {  //Se guardan los puntos proyectados que conforman el triangulo
             .points[0] = projected_points[0],
             .points[1] = projected_points[1],
             .points[2] = projected_points[2]
         };
 
-        //printf("\n%i: %f, %f", i, trianguloProyectado.points[0].x, trianguloProyectado.points[0].y);
-        //printf("\t\t%f, %f", trianguloProyectado.points[1].x, trianguloProyectado.points[1].y);
-        //printf("\t\t%f, %f", trianguloProyectado.points[2].x, trianguloProyectado.points[2].y);
-
-        array_push(ArrayTriangle, trianguloProyectado);
-        //extrae los vertices, vect3 para cada vertice, transformar esos 3 vertices, proyectarlos y dibujarlos a la mitad de la pantalla, por cada cara crear un traingle_t, array push a un apuntador de triangle_t 
+        array_push(ArrayTriangle, trianguloProyectado); 
     }
 } 
 
 
 void render(void){
     draw_grid();
-    //printf("\n%i", array_length(ArrayTriangle));
     for (int i = 0; i <array_length(ArrayTriangle); i++){
         triangle_t tempTriangle = ArrayTriangle[i];
-        //printf("\n%i: %f, %f", i, tempTriangle.points[0].x, tempTriangle.points[0].y);
-        //printf("\t\t%f, %f", tempTriangle.points[1].x, tempTriangle.points[1].y);
-        //printf("\t\t%f, %f", tempTriangle.points[2].x, tempTriangle.points[2].y);
         draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, 0xFFFF00FF);
 
-
-        draw_rect(tempTriangle.points[0].x, tempTriangle.points[0].y,4,4, 0x00ff0000);
-        draw_rect(tempTriangle.points[1].x, tempTriangle.points[1].y,4,4, 0x00ff0000);
-        draw_rect(tempTriangle.points[2].x, tempTriangle.points[2].y,4,4, 0x00ff0000);
+        //draw_rect(tempTriangle.points[0].x, tempTriangle.points[0].y,4,4, 0x00ff0000);
+        //draw_rect(tempTriangle.points[1].x, tempTriangle.points[1].y,4,4, 0x00ff0000);
+        //draw_rect(tempTriangle.points[2].x, tempTriangle.points[2].y,4,4, 0x00ff0000);
     }
 
-
-//testing draw_line
-    //draw_line(10.0,20.0,60.0,20.1, 0x00ff0000); //RED: horizontal line left to right
-    //draw_line(60.11,20.123,10.456,20, 0x0000ff00); //GREEN: horizontal line right to left
-    //draw_line(60,20,60,100, 0x000000ff);//BLUE: Downwards vertical
-    //draw_line(60,20,65,100, 0x00ffff00);//yellow: rightwards big slope
-    //draw_triangle(10,10,10,20,20,20,0x00ffffff);
-
-
-    //draw_pixel(ArrayTriangle->points[0].x, ArrayTriangle->points[0].y, 0x00ff0000);
-    //draw_pixel(ArrayTriangle->points[1].x, ArrayTriangle->points[1].y, 0x00ff0000);
-    //draw_pixel(ArrayTriangle->points[2].x, ArrayTriangle->points[2].y, 0x00ff0000);
     render_color_buffer();
     clear_color_buffer(0xFF000000);
     SDL_RenderPresent(renderer);

@@ -135,55 +135,27 @@ void destroy_window(void){
 }
 
 void draw_line(int x0, int y0, int x1, int y1, color_t color){
-    int y = y0;
+    int dx = abs(x1 - x0);
+    int dy = abs(y1 - y0);
 
-    int dx = x1 - x0;
-    int dy = y1 - y0;
-    int slope = 2 * dy;
-    int error = -dx;
-    int errorInc = -2 * dx;
+    int xinc = (x0 < x1) ? 1:-1;
+    int yinc = (y0 < y1) ? 1:-1;
+    int err = dx - dy;
 
-    if(x0<x1){  //left to right
-        for (int x = x0; x <= x1; ++x){
-            draw_pixel(x, y, color);
-            error += slope;
-
-            if (error >= 0){
-                y++;
-                error += errorInc;
-            }
+    while (true){
+        draw_pixel(x0, y0, color);
+        if(x0 == x1 && y0 == y1)
+            break;
+        int e2 = 2*err;
+        if(e2>-dy){
+            err -= dy;
+            x0 += xinc;
         }
-        return;   
-    }
-
-    if(x0>x1){  //right to left
-        for (int x = x0; x >= x1; --x){
-            draw_pixel(x, y, color);
-            error += slope;
-
-            if (error >= 0){
-                y++;
-                error += errorInc;
-            }
-        }
-        return;  
-    }
-
-    if(x0=x1){   //for vertical lines
-        if (y<y1){
-            while (y<y1){
-                draw_pixel(x0,y,color);
-                y++;
-            }
-            return;  
+        if (e2<dx){
+            err += dx;
+            y0 += yinc;
         }
         
-        if (y>y1){
-            while (y>y1){
-                draw_pixel(x0,y,color);
-                y--;
-            }
-            return;  
-        }
     }
+    
 }
