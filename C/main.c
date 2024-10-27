@@ -13,14 +13,14 @@
 
 #define N_POINTS (9*9*9)
 vec3_t cube_points[N_POINTS];
-vec2_t projected_points[N_POINTS];
 
+triangle_t* ArrayTriangle = NULL;
 
 vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
 vec3_t cube_scale = {1,1,1};
 
-float fov_factor = 200;
+float fov_factor = 320;//640;
 bool is_running = false;
 int previous_frame_time = 0;
 
@@ -72,13 +72,11 @@ void setup(void){
     }
 
     if(typeOfFigure == 2){
-        char fileName[] = "cube.obj";
-        //load_obj_file_data(fileName);
-        load_cube_mesh_data();
-        printf("Length Faces: %i", array_length(mesh.faces));
+        char fileName[] = "shield1.obj";
+        load_obj_file_data(fileName);
+        //load_cube_mesh_data();
     }
 }
-
 
 void process_input(void){
     SDL_Event event;
@@ -97,7 +95,6 @@ void process_input(void){
     }
 }
 
-
 vec2_t project(vec3_t v3){
 /*
     //Ortografica
@@ -105,34 +102,34 @@ vec2_t project(vec3_t v3){
             .x = (fov_factor * v3.x),
             .y = (fov_factor * v3.y)
     };
-
+*/
     //perspectiva
     vec2_t projected_point = {
             .x = (fov_factor * v3.x) / v3.z,
             .y = (fov_factor * v3.y) / v3.z
     };
-*/
 
+/*
     //not project
     vec2_t projected_point = {
             .x = v3.x,
             .y = v3.y
     };
-
+*/
     return projected_point;
 }
 
-
 void update(void){
+    ArrayTriangle = NULL;
     cube_rotation.x += 0.01;
     cube_rotation.y += 0.01;
     cube_rotation.z += 0.01;
-    cube_rotation.x = 0;
-    cube_rotation.y = 0;
-    cube_rotation.z = 0;
+    //cube_rotation.x = 0;
+    //cube_rotation.y = 0;
+    //cube_rotation.z = -135;
 
-    cube_translation.z = 1.0;
-    cube_translation.z = 0;
+    cube_translation.z = 5;
+    //cube_translation.z = 0;
 
     mat4_t scale_matrix = mat4_make_scale(cube_scale.x, cube_scale.y, cube_scale.z);
     mat4_t rotation_matrix_x = mat4_make_rotation_x(cube_rotation.x);
@@ -142,88 +139,68 @@ void update(void){
 
     mat4_t world_matrix = mat4_identity();
 
+    //O quizas lo del object va aqui arriba, debajo del world matrix
+
     world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
     world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
     world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
     world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
     world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
-    vec4_t transformed_points[N_POINTS];
+    for(int i = 0; i< array_length(mesh.faces); i++){
+        int verticeCara[3] = {          //se guardan los vertices por cara
+            mesh.faces[i].a - 1, 
+            mesh.faces[i].b - 1,
+            mesh.faces[i].c - 1
+        };
+        vec3_t verticesCara[3];
 
-    for(int i = 0; i< N_POINTS; i++){
-        vec4_t transformed_point = vec4_from_vec3(cube_points[i]);
+        verticesCara[0] = mesh.vertices[verticeCara[0]];
+        verticesCara[1] = mesh.vertices[verticeCara[1]];
+        verticesCara[2] = mesh.vertices[verticeCara[2]];
 
-        transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
-        transformed_points[i] = transformed_point;
+        vec4_t transformed_points[3];
+        vec2_t projected_points[3];
 
-        vec2_t projected_point = project(vec3_from_vec4(transformed_points[i]));
+//Transformando y proyectando el vertice a
+        for(int j = 0; j<3;j++){
+            vec4_t transformed_point = vec4_from_vec3(verticesCara[j]);
+            transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
+            transformed_points[j] = transformed_point;
+            vec2_t projected_point = project(vec3_from_vec4(transformed_points[j]));
+            projected_points[j] = projected_point;
+            projected_points[j].x += (window_width/2);
+            projected_points[j].y += (window_height/2);
+        }
+        
+        triangle_t trianguloProyectado = {  //Se guardan los puntos proyectados que conforman el triangulo
+            .points[0] = projected_points[0],
+            .points[1] = projected_points[1],
+            .points[2] = projected_points[2]
+        };
 
-        //poner bresenhamm y DDA
-
-        projected_points[i] = projected_point;
+        array_push(ArrayTriangle, trianguloProyectado); 
     }
-
 } 
-
 
 void render(void){
     draw_grid();
-    for(int i = 0; i<N_POINTS; i++){
-        vec2_t projected_point = projected_points[i];
-        if(i != N_POINTS-1){
-            draw_line(projected_points[i].x, projected_points[i].y, projected_points[i+1].x, projected_points[i+1].y, 0xFFFF00FF);
-        }
+    for (int i = 0; i <array_length(ArrayTriangle); i++){
+        triangle_t tempTriangle = ArrayTriangle[i];
+        draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, 0xFFFF00FF);
     }
-
-    for(int i = 0; i< array_length(mesh.faces); i++){
-        printf("\n%i", i);
-        for (int j = 0; j < 3; j++){
-            if (j==0){
-                int verticeTempA = mesh.faces[i].a - 1;
-                int verticeTempB = mesh.faces[i].b - 1;
-                //printf("\na: %i, x: %f, y: %f", mesh.faces[i].a, mesh.vertices[verticeTempA].x, mesh.vertices[verticeTempA].y);
-                //printf("\tb: %i, x: %f, y: %f", mesh.faces[i].b, mesh.vertices[verticeTempB].x, mesh.vertices[verticeTempB].y);
-                draw_line(mesh.vertices[verticeTempA].x, mesh.vertices[verticeTempA].y, mesh.vertices[verticeTempB].x, mesh.vertices[verticeTempB].y, mesh.faces[i].color);
-                printf("\nPunto 1");
-            }
-
-            if (j==1){
-                //printf("\nc: %i", mesh.faces[i].c);
-                //printf("\tb: %i", mesh.faces[i].b);
-                int verticeTempC = mesh.faces[i].c - 1;
-                int verticeTempB = mesh.faces[i].b - 1;
-                draw_line(mesh.vertices[verticeTempB].x, mesh.vertices[verticeTempB].y, mesh.vertices[verticeTempC].x, mesh.vertices[verticeTempC].y, mesh.faces[i].color);
-                printf("\tPunto 2");
-            }
-
-            if (j==2){
-                //printf("\na: %i", mesh.faces[i].a);
-                //printf("\tc: %i", mesh.faces[i].c);
-                int verticeTempA = mesh.faces[i].a - 1;
-                int verticeTempC = mesh.faces[i].c - 1;
-                draw_line(mesh.vertices[verticeTempC].x, mesh.vertices[verticeTempC].y, mesh.vertices[verticeTempA].x, mesh.vertices[verticeTempA].y, mesh.faces[i].color);
-                printf("\tPunto 3");
-            }
-            
-        }
-        
-    }
-
 
     render_color_buffer();
     clear_color_buffer(0xFF000000);
-
     SDL_RenderPresent(renderer);
 }
 
 
 int main(int argc, char *argv[]){
-/**/
-    //printf("%f", mesh.vertices->x);
-    
 
     is_running = initialize_window();
     setup();
+
     while (is_running){
         previous_frame_time = SDL_GetTicks();
         process_input();

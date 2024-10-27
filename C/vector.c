@@ -4,120 +4,122 @@
 #include "vector.h"
 #include "matrix.h"
 
-float vec2_length(vec2_t v){ //Si
-    float resultado = sqrt ( pow(v.x,2)+ pow(v.y,2));
-    return resultado;
+float vec2_length(vec2_t v) {
+    return sqrt(v.x * v.x + v.y * v.y);
 }
-vec2_t vec2_add(vec2_t a, vec2_t b){ //si
-    vec2_t suma;
-    
-    suma.x = a.x + b.x;
-    suma.y = a.y + b.y;
-
-    return suma;
+vec2_t vec2_add(vec2_t a, vec2_t b) {
+    vec2_t result = {
+            .x = a.x + b.x,
+            .y = a.y + b.y
+    };
+    return result;
 }
-vec2_t vec2_sub(vec2_t a, vec2_t b){ //si
-    vec2_t resta;
-    
-    resta.x = a.x - b.x;
-    resta.y = a.y - b.y;
-
-    return resta;
+vec2_t vec2_sub(vec2_t a, vec2_t b) {
+    vec2_t result = {
+            .x = a.x - b.x,
+            .y = a.y - b.y
+    };
+    return result;
 }
-vec2_t vec2_mul(vec2_t v, float factor){ //si
-    vec2_t mult;
-    
-    mult.x = v.x * factor;
-    mult.y = v.y * factor;
-
-    return mult;
+vec2_t vec2_mul(vec2_t v, float factor) {
+    vec2_t result = {
+            .x = v.x * factor,
+            .y = v.y * factor
+    };
+    return result;
 }
-vec2_t vec2_div(vec2_t v, float factor){ //si
-    vec2_t resul;
-    
-    resul.x = v.x / factor;
-    resul.y = v.y / factor;
-
-    return resul;
+vec2_t vec2_div(vec2_t v, float factor) {
+    vec2_t result = {
+            .x = v.x / factor,
+            .y = v.y / factor
+    };
+    return result;
 }
-void vec2_normalize(vec2_t* v){ //si
-    float temp = sqrt ( pow(v->x,2)+ pow(v->y,2));
-    v->x = (v->x)/temp;
-    v->y = (v->y)/temp;
+float vec2_dot(vec2_t a, vec2_t b) {
+    return (a.x * b.x) + (a.y * b.y);
+}
+void vec2_normalize(vec2_t* v) {
+    float length = sqrt(v->x * v->x + v->y * v->y);
+    v->x /= length;
+    v->y /= length;
 }
 
 // Vector 3D functions
-float vec3_length(vec3_t v){ //si
-    float resultado = sqrt ( pow(v.x,2)+ pow(v.y,2) + pow(v.z,2));
-    return resultado;
+float vec3_length(vec3_t v) {
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
-vec3_t vec3_add(vec3_t a, vec3_t b){ //si
-    vec3_t suma;
-    
-    suma.x = a.x + b.x;
-    suma.y = a.y + b.y;
-    suma.z = a.z + b.z;
-
-    return suma;
+vec3_t vec3_add(vec3_t a, vec3_t b) {
+    vec3_t result = {
+            .x = a.x + b.x,
+            .y = a.y + b.y,
+            .z = a.z + b.z
+    };
+    return result;
 }
-vec3_t vec3_sub(vec3_t a, vec3_t b){ //si
-    vec3_t resta;
-    
-    resta.x = a.x - b.x;
-    resta.y = a.y - b.y;
-    resta.z = a.z - b.z;
-
-    return resta;
+vec3_t vec3_sub(vec3_t a, vec3_t b) {
+    vec3_t result = {
+            .x = a.x - b.x,
+            .y = a.y - b.y,
+            .z = a.z - b.z
+    };
+    return result;
 }
-vec3_t vec3_mul(vec3_t v, float factor){ //si
-    vec3_t mult;
-    
-    mult.x = v.x * factor;
-    mult.y = v.y * factor;
-    mult.z = v.z * factor;
-
-    return mult;
+vec3_t vec3_mul(vec3_t v, float factor) {
+    vec3_t result = {
+            .x = v.x * factor,
+            .y = v.y * factor,
+            .z = v.z * factor
+    };
+    return result;
 }
-vec3_t vec3_div(vec3_t v, float factor){ //si
-    vec3_t mult;
-    
-    mult.x = v.x / factor;
-    mult.y = v.y / factor;
-    mult.z = v.z / factor;
-
-    return mult;
+vec3_t vec3_div(vec3_t v, float factor) {
+    vec3_t result = {
+            .x = v.x / factor,
+            .y = v.y / factor,
+            .z = v.z / factor
+    };
+    return result;
 }
-vec3_t vec3_cross(vec3_t a, vec3_t b){ //si
-    vec3_t resul;
-
-    resul.x = a.y*b.z - a.z*b.y;
-    resul.y = a.z*b.x - a.x*b.z;
-    resul.z = a.x*b.y - a.y*b.x;
-
-    return resul; 
+vec3_t vec3_cross(vec3_t a, vec3_t b) {
+    vec3_t result = {
+            .x = a.y * b.z - a.z * b.y,
+            .y = a.z * b.x - a.x * b.z,
+            .z = a.x * b.y - a.y * b.x
+    };
+    return result;
 }
-float vec3_dot(vec3_t a, vec3_t b){ //si
-    float resul = a.x*b.x + a.y*b.y + a.z*b.z;
-    return resul;
+float vec3_dot(vec3_t a, vec3_t b) {
+    return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
-void vec3_normalize(vec3_t* v){ //si
-    float temp = sqrt ( pow(v->x,2) + pow(v->y,2) + pow(v->z,2));
-    v->x = (v->x)/temp;
-    v->y = (v->y)/temp;
-    v->z = (v->z)/temp;
+void vec3_normalize(vec3_t* v) {
+    float length = vec3_length(*v);
+    v->x /= length;
+    v->y /= length;
+    v->z /= length;
 }
-
-vec3_t vec3_rotate_x(vec3_t v, float angle){ //no se
-    vec3_t vecRot = {v.x, v.y*cos(angle)-v.z*sin(angle) , v.z*cos(angle)+v.y*sin(angle)};
-    return vecRot;
+vec3_t vec3_rotate_x(vec3_t v, float angle) {
+    vec3_t rotated_vector = {
+            .x = v.x,
+            .y = v.y * cos(angle) - v.z * sin(angle),
+            .z = v.y * sin(angle) + v.z * cos(angle)
+    };
+    return rotated_vector;
 }
-vec3_t vec3_rotate_y(vec3_t v, float angle){ //no se
-    vec3_t vec = {v.x*cos(angle)+v.z*sin(angle), v.y, v.z*cos(angle)-v.x*sin(angle)};
-    return vec;
+vec3_t vec3_rotate_y(vec3_t v, float angle) {
+    vec3_t rotated_vector = {
+            .x = v.x * cos(angle) - v.z * sin(angle),
+            .y = v.y,
+            .z = v.x * sin(angle) + v.z * cos(angle)
+    };
+    return rotated_vector;
 }
-vec3_t vec3_rotate_z(vec3_t v, float angle){ //no se
-    vec3_t vec = {v.x*cos(angle)-v.y*sin(angle), v.y*cos(angle)+v.x*sin(angle), v.z};
-    return vec;
+vec3_t vec3_rotate_z(vec3_t v, float angle) {
+    vec3_t rotated_vector = {
+            .x = v.x * cos(angle) - v.y * sin(angle),
+            .y = v.x * sin(angle) + v.y * cos(angle),
+            .z = v.z
+    };
+    return rotated_vector;
 }
 
 // Vector conversion functions
@@ -127,8 +129,6 @@ vec4_t vec4_from_vec3(vec3_t v){
 }
 vec3_t vec3_from_vec4(vec4_t v){
     vec3_t resul = {v.x, v.y, v.z};
-    //vec3_t resul = {v.x+v.y, v.z+v.w, v.x+v.z};
-    //vec3_t resul = {v.x, v.y, v.w};
     return resul;
 }
 
