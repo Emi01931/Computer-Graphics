@@ -20,7 +20,7 @@ vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
 vec3_t cube_scale = {1,1,1};
 
-float fov_factor = 200;//640;
+float fov_factor = 320;//640;
 bool is_running = false;
 int previous_frame_time = 0;
 
@@ -72,10 +72,9 @@ void setup(void){
     }
 
     if(typeOfFigure == 2){
-        char fileName[] = "cube.obj";
+        char fileName[] = "shield1.obj";
         load_obj_file_data(fileName);
         //load_cube_mesh_data();
-        //printf("%f, %f, %f\n", mesh.vertices[0].x, mesh.vertices[0].y, mesh.vertices[0].z);
     }
 }
 
@@ -120,7 +119,6 @@ vec2_t project(vec3_t v3){
     return projected_point;
 }
 
-
 void update(void){
     ArrayTriangle = NULL;
     cube_rotation.x += 0.01;
@@ -128,7 +126,7 @@ void update(void){
     cube_rotation.z += 0.01;
     //cube_rotation.x = 0;
     //cube_rotation.y = 0;
-    //cube_rotation.z = 0;
+    //cube_rotation.z = -135;
 
     cube_translation.z = 5;
     //cube_translation.z = 0;
@@ -185,16 +183,11 @@ void update(void){
     }
 } 
 
-
 void render(void){
     draw_grid();
     for (int i = 0; i <array_length(ArrayTriangle); i++){
         triangle_t tempTriangle = ArrayTriangle[i];
         draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, 0xFFFF00FF);
-
-        //draw_rect(tempTriangle.points[0].x, tempTriangle.points[0].y,4,4, 0x00ff0000);
-        //draw_rect(tempTriangle.points[1].x, tempTriangle.points[1].y,4,4, 0x00ff0000);
-        //draw_rect(tempTriangle.points[2].x, tempTriangle.points[2].y,4,4, 0x00ff0000);
     }
 
     render_color_buffer();
