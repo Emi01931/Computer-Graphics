@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 #include <math.h>
 #include "matrix.h"
 
@@ -12,7 +12,6 @@ mat4_t mat4_identity(void){
                     }};
     return matriz;
 }
-
 mat4_t mat4_make_scale(float sx, float sy, float sz){
     mat4_t m = mat4_identity();
         m.m[0][0] = sx;
@@ -21,65 +20,69 @@ mat4_t mat4_make_scale(float sx, float sy, float sz){
     return m;
 }
 mat4_t mat4_make_translation(float tx, float ty, float tz){
-    mat4_t matriz = {   1.0,0.0,0.0,tx,
-                        0.0,1.0,0.0,ty,
-                        0.0,0.0,1.0,tz,
-                        0.0,0.0,0.0,1.0
-                    };
-    return matriz;
+    mat4_t m = mat4_identity();
+    m.m[0][3] = tx;
+    m.m[1][3] = ty;
+    m.m[2][3] = tz;
+    return m;
 }
 mat4_t mat4_make_rotation_x(float angle){
-    mat4_t matriz = {   1.0           ,0.0         ,0.0      ,0.0,
-                        0.0           ,cos(angle),-sin(angle),0.0,
-                        0.0           ,sin(angle),cos(angle) ,0.0,
-                        0.0           ,0.0       ,0.0        ,1.0
-                    };
-    return matriz;
+    float c = cos(angle);
+    float s = sin(angle);
+
+    mat4_t m = mat4_identity();
+    m.m[1][1] = c;
+    m.m[1][2] = -s;
+    m.m[2][1] = s;
+    m.m[2][2] = c;
+    return m;
 }
-mat4_t mat4_make_rotation_y(float angle){
-    mat4_t matriz = {   cos(angle)  ,0.0         ,sin(angle) ,0.0,
-                        0.0         ,1.0         ,0.0        ,0.0,
-                        -sin(angle) ,0.0         ,cos(angle) ,0.0,
-                        0.0           ,0.0       ,0.0        ,1.0
-                    };
-    return matriz;
+mat4_t mat4_make_rotation_y(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    // |  c  0  s  0 |
+    // |  0  1  0  0 |
+    // | -s  0  c  0 |
+    // |  0  0  0  1 |
+    mat4_t m = mat4_identity();
+    m.m[0][0] = c;
+    m.m[0][2] = s;
+    m.m[2][0] = -s;
+    m.m[2][2] = c;
+    return m;
 }
-mat4_t mat4_make_rotation_z(float angle){
-    mat4_t matriz = {   cos(angle)  ,-sin(angle),0.0          ,0.0,
-                        sin(angle)  ,cos(angle) ,0.0          ,0.0,
-                        0.0         ,0.0        ,1.0          ,0.0,
-                        0.0         ,0.0        ,0.0          ,1.0
-                    };
-    return matriz;
+mat4_t mat4_make_rotation_z(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    // | c -s  0  0 |
+    // | s  c  0  0 |
+    // | 0  0  1  0 |
+    // | 0  0  0  1 |
+    mat4_t m = mat4_identity();
+    m.m[0][0] = c;
+    m.m[0][1] = -s;
+    m.m[1][0] = s;
+    m.m[1][1] = c;
+    return m;
 }
-vec4_t mat4_mul_vec4(mat4_t m, vec4_t v){ //si sirve
-//f,c
-    float resultado1 = m.m[0][0]*v.x + m.m[0][1]*v.y + m.m[0][2]*v.z + m.m[0][3]*v.w;
-    float resultado2 = m.m[1][0]*v.x + m.m[1][1]*v.y + m.m[1][2]*v.z + m.m[1][3]*v.w;
-    float resultado3 = m.m[2][0]*v.x + m.m[2][1]*v.y + m.m[2][2]*v.z + m.m[2][3]*v.w;
-    float resultado4 = m.m[3][0]*v.x + m.m[3][1]*v.y + m.m[3][2]*v.z + m.m[3][3]*v.w;
-    
-    vec4_t vect = {     resultado1,
-                        resultado2,
-                        resultado3,
-                        resultado4
-                    };
-    return vect;
+vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
+    vec4_t result;
+    result.x = m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3] * v.w;
+    result.y = m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[1][3] * v.w;
+    result.z = m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[2][3] * v.w;
+    result.w = m.m[3][0] * v.x + m.m[3][1] * v.y + m.m[3][2] * v.z + m.m[3][3] * v.w;
+    return result;
 }
-mat4_t mat4_mul_mat4(mat4_t a, mat4_t b){ // si sirve
-/**/
-    mat4_t producto;
-    for (int k = 0; k < 4; k++) {
-        for (int i = 0; i < 4; i++) {
-            float suma = 0.0;
-            for (int j = 0; j < 4; j++) {
-                suma += a.m[i][j] * b.m[j][k];
-            }
-            producto.m[i][k] = suma;
+mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
+    mat4_t m;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            m.m[i][j] = a.m[i][0] * b.m[0][j] + a.m[i][1] * b.m[1][j] + a.m[i][2] * b.m[2][j] + a.m[i][3] * b.m[3][j];
         }
     }
-    return producto;
+    return m;
 }
+
 
 /*
 int main(int argc, char *argv[]){
