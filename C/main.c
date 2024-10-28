@@ -242,7 +242,6 @@ void render(void){
                 temp1 = temp0;
                 temp0 = tempTriangle.points[1];
             }
-
             if(temp1.y < tempTriangle.points[2].y){//2
                 temp2 = tempTriangle.points[2];
             }else if(temp0.y < tempTriangle.points[2].y){
@@ -261,7 +260,7 @@ void render(void){
 
             int my = temp1.y;
 
-            //printf("\n%i", mx);
+            //printf(" ,%i", mx);
 
             if((int)temp0.y == (int)temp1.y && (int)temp0.y != (int)temp2.y){
                 draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, color);
@@ -270,6 +269,8 @@ void render(void){
             }else if((int)temp0.y != (int)temp1.y && (int)temp1.y != (int)temp2.y && (int)temp0.y != (int)temp2.y){
                 draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, color);
                 draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, color);
+            }else{
+                draw_pixel(temp0.x, temp0.y, color);
             }
         }
     }
