@@ -57,6 +57,7 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "triangle.h": "c"
+    "triangle.h": "c",
+    "display.h": "c"
   }
 }
