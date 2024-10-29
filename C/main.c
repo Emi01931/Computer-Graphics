@@ -25,14 +25,14 @@ bool is_running = false;
 int previous_frame_time = 0;
 
 
-int r = 300;
-int xc = 450;
-int yx = 340;
+int r = 150;
+int xc = 550;
+int yx = 240;
 
-int rx = 150;
-int ry = 100;
+int rx = 100;
+int ry = 150;
 
-int typeOfFigure = 3; // 0 = cube, 1 = circle, 2 = .obj, 3 = ellipse
+int typeOfFigure = 1; // 0 = cube, 1 = circle, 2 = .obj, 3 = ellipse
 
 void setup(void){
     //Cada pixel usa el tipo de dato uin32_t
