@@ -156,11 +156,11 @@ vec2_t project(vec3_t v3){
 void update(void){
     ArrayTriangle = NULL;
     cube_rotation.x += 0.01;
-    cube_rotation.y += 0.01;
+    cube_rotation.y += 0.008;
     cube_rotation.z += 0.01;
-    //cube_rotation.x = 0;
+    cube_rotation.x = 0;
     //cube_rotation.y = 0;
-    //cube_rotation.z = -135;
+    cube_rotation.z = 0;
 
     cube_translation.z = 5;
     //cube_translation.z = 0;
@@ -263,14 +263,14 @@ void render(void){
             //printf(" ,%i", mx);
 
             if((int)temp0.y == (int)temp1.y && (int)temp0.y != (int)temp2.y){
-                draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, color);
+                //printf("\nonlyTop");
+                draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, color);
             }else if((int)temp1.y == (int)temp2.y && (int)temp1.y != (int)temp0.y){
-                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, color);
-            }else if((int)temp0.y != (int)temp1.y && (int)temp1.y != (int)temp2.y && (int)temp0.y != (int)temp2.y){
+                //printf("\nBottom");
+                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, color);
+            }else if((int)temp0.y != (int)temp2.y && (int)temp1.y != (int)temp0.y){
                 draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, color);
                 draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, color);
-            }else{
-                draw_pixel(temp0.x, temp0.y, color);
             }
         }
     }

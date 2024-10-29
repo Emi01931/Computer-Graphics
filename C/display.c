@@ -164,8 +164,8 @@ void draw_flat_bottom(int x0, int y0, int x1, int y1, int mx, int my, color_t co
     int xStart = x0;
     int xEnd = x0;
     //printf("\n%i, %i", y0, y0);
-    int m1 = (x1-x0)/(y1-y0);
-    int m2 = (mx-x0)/(my-y0);
+    float m1 = (x1-x0)/(y1-y0);
+    float m2 = (mx-x0)/(my-y0);
     for(int y = y0; y <= my; y++){
         draw_line(xStart,y,xEnd,y, color);
         xStart += m1;
@@ -176,8 +176,8 @@ void draw_flat_top(int x0, int y0, int mx, int my, int x2, int y2, color_t color
     int xStart = x2;
     int xEnd = x2;
     //printf("\t\t%i, %i", y0, y2);
-    int m1 = (x2-x0)/(y2-y0);
-    int m2 = (x2-mx)/(y2-y0);
+    float m1 = (x2-x0)/(y2-y0);
+    float m2 = (x2-mx)/(y2-y0);
     for(int y = y2; y >= y0; y--){
         draw_line(xStart,y,xEnd,y, color);
         xStart -= m1;
