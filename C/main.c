@@ -21,7 +21,7 @@ vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
 vec3_t cube_scale = {1,1,1};
 
-float fov_factor = 320;//640;
+float fov_factor = 600;//640;
 bool is_running = false;
 int previous_frame_time = 0;
 
@@ -78,7 +78,6 @@ void setup(void){
     if(typeOfFigure == 2){
         char fileName[] = "shield1.obj";
         load_obj_file_data(fileName);
-        //load_cube_mesh_data();
     }
 }
 
@@ -154,11 +153,13 @@ vec2_t project(vec3_t v3){
 }
 
 void update(void){
+    //y ->
+    //x ^
     ArrayTriangle = NULL;
     cube_rotation.x += 0.01;
     cube_rotation.y += 0.008;
     cube_rotation.z += 0.01;
-    cube_rotation.x = 0;
+    //cube_rotation.x = 0;
     //cube_rotation.y = 0;
     cube_rotation.z = 0;
 
@@ -236,41 +237,52 @@ void render(void){
             vec2_t temp1;
             vec2_t temp2;
 
-            if(temp0.y < tempTriangle.points[1].y){ //1
+            if((int)temp0.y < (int)tempTriangle.points[1].y){
                 temp1 = tempTriangle.points[1];
             }else{
                 temp1 = temp0;
                 temp0 = tempTriangle.points[1];
             }
-            if(temp1.y < tempTriangle.points[2].y){//2
+            if((int)temp1.y < (int)tempTriangle.points[2].y){
                 temp2 = tempTriangle.points[2];
-            }else if(temp0.y < tempTriangle.points[2].y){
+            }else if((int)temp0.y < (int)tempTriangle.points[2].y){
                 temp2 = temp1;
-                temp1 = tempTriangle.points[2];//2
+                temp1 = tempTriangle.points[2];
             }else{
                 temp2 = temp1;
                 temp1 = temp0;
                 temp0 = tempTriangle.points[2];
-            }
+            }/*
+            if((int)temp2.y < (int)temp1.y){
+                vec2_t temp = temp1;
+                temp1 = temp2;
+                temp2 = temp;
+            }*/
 
             //printf("\n%.1f, %.1f, %.1f",temp0.y,temp1.y,temp2.y);
 
-            int mx = (int)(((temp1.y-temp0.y)*(temp2.x-temp0.x))/
+            //if(i>-1)
+                //printf("\t%.1f, %.1f, %.1f",tempTriangle.points[0].y,tempTriangle.points[1].y,tempTriangle.points[2].y);
+
+
+            float mx = (((temp1.y-temp0.y)*(temp2.x-temp0.x))/
                         (temp2.y-temp0.y)) + temp0.x;
 
-            int my = temp1.y;
+            float my = temp1.y;
 
             //printf(" ,%i", mx);
 
-            if((int)temp0.y == (int)temp1.y && (int)temp0.y != (int)temp2.y){
-                //printf("\nonlyTop");
+            if((int)temp0.y == (int)temp1.y){
                 draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, color);
-            }else if((int)temp1.y == (int)temp2.y && (int)temp1.y != (int)temp0.y){
-                //printf("\nBottom");
+            }else if((int)temp1.y == (int)temp2.y){
                 draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, color);
-            }else if((int)temp0.y != (int)temp2.y && (int)temp1.y != (int)temp0.y){
-                draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, color);
+            }else{
                 draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, color);
+                draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, color);
+            }
+
+            if((int)temp0.y == (int)temp2.y && (int)temp1.y == (int)temp0.y){
+                draw_pixel(temp0.x, temp0.y, color);
             }
         }
     }
@@ -286,7 +298,7 @@ int main(int argc, char *argv[]){
 
     is_running = initialize_window();
     setup();
-
+    
     while (is_running){
         previous_frame_time = SDL_GetTicks();
         process_input();
