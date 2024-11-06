@@ -4,14 +4,17 @@
 #include <stdbool.h>
 #include <string.h>
 #include <strings.h>
+#include <math.h> 
 #include "array.h"
 #include "display.h"
 #include "matrix.h"
 #include "mesh.h"
 #include "triangle.h"
 #include "vector.h"
+#include "pf.h"
 
 #define N_POINTS (9*9*9)
+
 vec3_t cube_points[N_POINTS];
 vec2_t projected_points[N_POINTS];
 
@@ -32,7 +35,7 @@ int yx = 240;
 int rx = 100;
 int ry = 150;
 
-int typeOfFigure = 1; // 0 = cube, 1 = circle, 2 = .obj, 3 = ellipse
+int typeOfFigure = 4; //cube = 0, circle = 1, .obj = 2, ellipse = 3, polygonfilling = 4 
 
 void setup(void){
     //Cada pixel usa el tipo de dato uin32_t
@@ -180,6 +183,10 @@ void render(void){
 
     if(typeOfFigure == 3){
         draw_ellipse(rx, ry, xc, yx, 0x0000ff00);
+    }
+
+    if(typeOfFigure == 4){
+        pf(0x0000ff00);
     }
 
     render_color_buffer();

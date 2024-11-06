@@ -1,7 +1,6 @@
 #include "display.h"
 #include "vector.h"
 
-
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Texture* color_buffer_texture = NULL;
