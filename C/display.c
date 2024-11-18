@@ -7,6 +7,7 @@ SDL_Texture *color_buffer_texture = NULL;
 uint32_t *color_buffer = NULL; // Some books like to call this as "frame buffer." For all practical purposes, color buffer & frame buffer are the same thing; they are a mirror in memory of the pixels that we want to see in our display.
 int window_width = 0;
 int window_height = 0;
+int ceroDiv = 999999999;
 
 bool initialize_window(void){
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -158,4 +159,53 @@ void draw_line(int x0, int y0, int x1, int y1, color_t color){
         
     }
     
+}
+
+void draw_flat_bottom(int x0, int y0, int x1, int y1, int x2, int y2, color_t color){
+    float xStart = x0;
+    float xEnd = x0;
+    //printf("\tB");
+    float m2;
+    float m1;
+    if(y1 != y0){
+        m1 = (float)(x1-x0)/(y1-y0);
+    }else{
+        m1 = -(float)ceroDiv;
+    }
+
+    if(y2 != y0){
+        m2 = (float)(x2-x0)/(y2-y0);
+    }else{
+        m2 = (float)ceroDiv;
+    }
+
+    for(int y = y0; y < y2; y++){
+        draw_line(xStart,y,xEnd,y, color);
+        xStart += m1;
+        xEnd += m2;
+    }
+}
+void draw_flat_top(int x0, int y0, int x1, int y1, int x2, int y2, color_t color){
+    float xStart = x2;
+    float xEnd = x2;
+    //printf("\tT");
+    float m2;
+    float m1;
+    if(y2 != y0){
+        m1 = (float)(x2-x0)/(y2-y0);
+    }else{
+        m1 = (float)ceroDiv;
+    }
+
+    if(y2 != y1){
+        m2 = (float)(x2-x1)/(y2-y1);
+    }else{
+        m2 = -(float)ceroDiv;
+    }
+    
+    for(int y = y2; y >= y0; y--){
+        draw_line(xStart,y,xEnd,y, color);
+        xStart -= m1;
+        xEnd -= m2;
+    }
 }

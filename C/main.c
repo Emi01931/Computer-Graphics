@@ -15,18 +15,22 @@
 vec3_t cube_points[N_POINTS];
 
 triangle_t* ArrayTriangle = NULL;
+color_t color = 0x00ffff00;
 
 vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
 vec3_t cube_scale = {1,1,1};
 
-float fov_factor = 320;//640;
+float fov_factor = 600;//640;
 bool is_running = false;
 int previous_frame_time = 0;
 
 int radious = 10;
 int radiousA = 35;
 int typeOfFigure = 2; // 0 = cube, 1 = circle, 2 .obj
+bool hideColor = false;
+bool hideVertex = false;
+bool hideEdge = false;
 
 void setup(void){
     //Cada pixel usa el tipo de dato uin32_t
@@ -74,7 +78,6 @@ void setup(void){
     if(typeOfFigure == 2){
         char fileName[] = "shield1.obj";
         load_obj_file_data(fileName);
-        //load_cube_mesh_data();
     }
 }
 
@@ -88,10 +91,40 @@ void process_input(void){
             break;
 
         case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_ESCAPE){
+            if(event.key.keysym.sym == SDLK_ESCAPE){
                 is_running = false;
+            }else{
+                switch (event.key.keysym.scancode){
+                case SDL_SCANCODE_F:
+                    if (hideColor == false){
+                        hideColor = true;
+                    }else{
+                        hideColor = false;
+                    }                    
+                    break;
+
+                case SDL_SCANCODE_L:
+                    if (hideEdge == false){
+                        hideEdge = true;
+                    }else{
+                        hideEdge = false;
+                    }                    
+                    break;
+
+                case SDL_SCANCODE_V:
+                    if (hideVertex == false){
+                        hideVertex = true;
+                    }else{
+                        hideVertex = false;
+                    }                    
+                    break;
+                
+                default:
+                    break;
+                }
             }
             break;
+            
     }
 }
 
@@ -120,13 +153,15 @@ vec2_t project(vec3_t v3){
 }
 
 void update(void){
+    //y ->
+    //x ^
     ArrayTriangle = NULL;
     cube_rotation.x += 0.01;
-    cube_rotation.y += 0.01;
+    cube_rotation.y += 0.008;
     cube_rotation.z += 0.01;
     //cube_rotation.x = 0;
     //cube_rotation.y = 0;
-    //cube_rotation.z = -135;
+    cube_rotation.z = 0;
 
     cube_translation.z = 5;
     //cube_translation.z = 0;
@@ -187,8 +222,71 @@ void render(void){
     draw_grid();
     for (int i = 0; i <array_length(ArrayTriangle); i++){
         triangle_t tempTriangle = ArrayTriangle[i];
-        draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, 0xFFFF00FF);
+
+        if(hideVertex == false){
+            draw_pixel(tempTriangle.points[0].x, tempTriangle.points[0].y, color);
+            draw_pixel(tempTriangle.points[1].x, tempTriangle.points[1].y, color);
+            draw_pixel(tempTriangle.points[2].x, tempTriangle.points[2].y, color);
+        }
+
+        if(hideEdge == false)
+            draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, 0xFFFF00FF);
+        
+        if(hideColor == false){
+            vec2_t temp0 = tempTriangle.points[0];//3
+            vec2_t temp1;
+            vec2_t temp2;
+
+            if((int)temp0.y < (int)tempTriangle.points[1].y){
+                temp1 = tempTriangle.points[1];
+            }else{
+                temp1 = temp0;
+                temp0 = tempTriangle.points[1];
+            }
+            if((int)temp1.y < (int)tempTriangle.points[2].y){
+                temp2 = tempTriangle.points[2];
+            }else if((int)temp0.y < (int)tempTriangle.points[2].y){
+                temp2 = temp1;
+                temp1 = tempTriangle.points[2];
+            }else{
+                temp2 = temp1;
+                temp1 = temp0;
+                temp0 = tempTriangle.points[2];
+            }/*
+            if((int)temp2.y < (int)temp1.y){
+                vec2_t temp = temp1;
+                temp1 = temp2;
+                temp2 = temp;
+            }*/
+
+            //printf("\n%.1f, %.1f, %.1f",temp0.y,temp1.y,temp2.y);
+
+            //if(i>-1)
+                //printf("\t%.1f, %.1f, %.1f",tempTriangle.points[0].y,tempTriangle.points[1].y,tempTriangle.points[2].y);
+
+
+            float mx = (((temp1.y-temp0.y)*(temp2.x-temp0.x))/
+                        (temp2.y-temp0.y)) + temp0.x;
+
+            float my = temp1.y;
+
+            //printf(" ,%i", mx);
+
+            if((int)temp0.y == (int)temp1.y){
+                draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, color);
+            }else if((int)temp1.y == (int)temp2.y){
+                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, color);
+            }else{
+                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, color);
+                draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, color);
+            }
+
+            if((int)temp0.y == (int)temp2.y && (int)temp1.y == (int)temp0.y){
+                draw_pixel(temp0.x, temp0.y, color);
+            }
+        }
     }
+
 
     render_color_buffer();
     clear_color_buffer(0xFF000000);
@@ -200,7 +298,7 @@ int main(int argc, char *argv[]){
 
     is_running = initialize_window();
     setup();
-
+    
     while (is_running){
         previous_frame_time = SDL_GetTicks();
         process_input();
