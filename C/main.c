@@ -21,7 +21,7 @@ vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
 vec3_t cube_scale = {1,1,1};
 
-float fov_factor = 600;//640;
+float fov_factor = 200;//640;
 bool is_running = false;
 int previous_frame_time = 0;
 
@@ -76,7 +76,7 @@ void setup(void){
     }
 
     if(typeOfFigure == 2){
-        char fileName[] = "shield1.obj";
+        char fileName[] = "cube.obj";
         load_obj_file_data(fileName);
     }
 }
@@ -195,26 +195,43 @@ void update(void){
         verticesCara[2] = mesh.vertices[verticeCara[2]];
 
         vec4_t transformed_points[3];
+        vec3_t tempTransformedPoint[3];
         vec2_t projected_points[3];
 
-//Transformando y proyectando el vertice a
+//Transformando y proyectando los vertices
         for(int j = 0; j<3;j++){
             vec4_t transformed_point = vec4_from_vec3(verticesCara[j]);
             transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
             transformed_points[j] = transformed_point;
-            vec2_t projected_point = project(vec3_from_vec4(transformed_points[j]));
+            tempTransformedPoint[j] = vec3_from_vec4(transformed_points[j]);
+            vec2_t projected_point = project(tempTransformedPoint[j]);
             projected_points[j] = projected_point;
             projected_points[j].x += (window_width/2);
             projected_points[j].y += (window_height/2);
         }
         
-        triangle_t trianguloProyectado = {  //Se guardan los puntos proyectados que conforman el triangulo
-            .points[0] = projected_points[0],
-            .points[1] = projected_points[1],
-            .points[2] = projected_points[2]
-        };
+//calculando el camRay y si son visibles las caras
 
-        array_push(ArrayTriangle, trianguloProyectado); 
+        vec3_t camaraPosition = {0,0,0};
+
+        vec3_t vecA = vec3_sub(tempTransformedPoint[0], tempTransformedPoint[1]); //v1-v2
+        vec3_t vecB = vec3_sub(tempTransformedPoint[0], tempTransformedPoint[2]); //v1-v3
+
+        vec3_t FaceNormalVect = vec3_cross(vecA, vecB);
+        vec3_t camaraRay = vec3_sub(camaraPosition, tempTransformedPoint[0]);
+        float RenderingCondition = vec3_dot(camaraRay, FaceNormalVect);
+
+        float depth = (FaceNormalVect.x+FaceNormalVect.y+FaceNormalVect.z)/3;
+
+        if(RenderingCondition > 0){
+            triangle_t trianguloProyectado = {  //Se guardan los puntos proyectados que conforman el triangulo
+                .points[0] = projected_points[0],
+                .points[1] = projected_points[1],
+                .points[2] = projected_points[2],
+                .depth     = depth
+            };
+            array_push(ArrayTriangle, trianguloProyectado); 
+        }
     }
 } 
 
