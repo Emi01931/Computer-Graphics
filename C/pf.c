@@ -244,7 +244,7 @@ void drawPolyLines(color_t color){ //Draw the figure but don´t add color
     rewind(fp);
     while(!feof(fp) )
     {
-        count++;
+        count++;    //if its 1 then gets first point, 2 gets second point, draw and store, 3 change v2 as v1
         if (count>2)
         {
             x1 = x2;
