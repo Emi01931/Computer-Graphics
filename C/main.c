@@ -21,7 +21,7 @@ vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
 vec3_t cube_scale = {1,1,1};
 
-float fov_factor = 200;//640;
+float fov_factor = 640;//640;
 bool is_running = false;
 int previous_frame_time = 0;
 
@@ -31,6 +31,34 @@ int typeOfFigure = 2; // 0 = cube, 1 = circle, 2 .obj
 bool hideColor = false;
 bool hideVertex = false;
 bool hideEdge = false;
+
+int partition(triangle_t arr[], int low, int high) {
+    int pivot = arr[high].depth;
+    int i = low - 1;
+
+    for (int j = low; j < high; ++j) {
+        if (arr[j].depth < pivot) {
+            triangle_t key = ArrayTriangle[i];
+            ArrayTriangle[i] = ArrayTriangle[j];
+            ArrayTriangle[j] = key;
+        }
+    }
+
+    triangle_t key = ArrayTriangle[i+1];
+    ArrayTriangle[i+1] = ArrayTriangle[high];
+    ArrayTriangle[high] = key;
+
+    return i + 1;
+}
+
+void quickSort(triangle_t arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
 
 void setup(void){
     //Cada pixel usa el tipo de dato uin32_t
@@ -76,7 +104,7 @@ void setup(void){
     }
 
     if(typeOfFigure == 2){
-        char fileName[] = "cube.obj";
+        char fileName[] = "shield1.obj";
         load_obj_file_data(fileName);
     }
 }
@@ -204,10 +232,6 @@ void update(void){
             transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
             transformed_points[j] = transformed_point;
             tempTransformedPoint[j] = vec3_from_vec4(transformed_points[j]);
-            vec2_t projected_point = project(tempTransformedPoint[j]);
-            projected_points[j] = projected_point;
-            projected_points[j].x += (window_width/2);
-            projected_points[j].y += (window_height/2);
         }
         
 //calculando el camRay y si son visibles las caras
@@ -221,14 +245,19 @@ void update(void){
         vec3_t camaraRay = vec3_sub(camaraPosition, tempTransformedPoint[0]);
         float RenderingCondition = vec3_dot(camaraRay, FaceNormalVect);
 
-        float depth = (FaceNormalVect.x+FaceNormalVect.y+FaceNormalVect.z)/3;
-
         if(RenderingCondition > 0){
+            for(int j = 0 ; j<3 ; j++){
+                vec2_t projected_point = project(tempTransformedPoint[j]);
+                projected_points[j] = projected_point;
+                projected_points[j].x += (window_width/2);
+                projected_points[j].y += (window_height/2);
+            }
+
             triangle_t trianguloProyectado = {  //Se guardan los puntos proyectados que conforman el triangulo
                 .points[0] = projected_points[0],
                 .points[1] = projected_points[1],
                 .points[2] = projected_points[2],
-                .depth     = depth
+                .depth     = (FaceNormalVect.x+FaceNormalVect.y+FaceNormalVect.z)/3
             };
             array_push(ArrayTriangle, trianguloProyectado); 
         }
@@ -237,7 +266,26 @@ void update(void){
 
 void render(void){
     draw_grid();
-    for (int i = 0; i <array_length(ArrayTriangle); i++){
+    int ArrayLen = array_length(ArrayTriangle);
+    
+     quickSort(ArrayTriangle, (int) ArrayLen/2, ArrayLen - 1);
+    /*
+    //insert sort
+    for (int i = 1; i < ArrayLen; ++i) {
+        triangle_t key = ArrayTriangle[i];
+        int j = i - 1;
+
+        while (j >= 0 && ArrayTriangle[j].depth > key.depth) {
+            ArrayTriangle[j + 1] = ArrayTriangle[j];
+            j = j - 1;
+        }
+
+        ArrayTriangle[j + 1] = key;
+    }
+    */
+
+
+    for (int i = 0; i < ArrayLen ; i++){
         triangle_t tempTriangle = ArrayTriangle[i];
 
         if(hideVertex == false){
