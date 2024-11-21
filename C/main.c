@@ -27,48 +27,41 @@ int previous_frame_time = 0;
 
 int radious = 10;
 int radiousA = 35;
-int typeOfFigure = 2; // 0 = cube, 1 = circle, 2 .obj
+int typeOfFigure = 1; //cube = 0, .obj = 1
 bool hideColor = false;
 bool hideVertex = false;
 bool hideEdge = false;
 
-int partition(triangle_t arr[], int low, int high) {
-    int pivot = arr[high].depth;
-    int i = low - 1;
+//tried quicksort and insert sort, but they were way too slow
+//Algorith to sort for depth each face
+void shell(){
+    int num = array_length(ArrayTriangle);
+    int i, j, k;
+    triangle_t tmp;
 
-    for (int j = low; j < high; ++j) {
-        if (arr[j].depth < pivot) {
-            triangle_t key = ArrayTriangle[i];
-            ArrayTriangle[i] = ArrayTriangle[j];
-            ArrayTriangle[j] = key;
+    for (i = num / 2; i > 0; i = i / 2){
+        for (j = i; j < num; j++){
+            for(k = j - i; k >= 0; k = k - i){
+                if (ArrayTriangle[k+i].depth >= ArrayTriangle[k].depth)
+                    break;
+                else{
+                    tmp = ArrayTriangle[k];
+                    ArrayTriangle[k] = ArrayTriangle[k+i];
+                    ArrayTriangle[k+i] = tmp;
+                }
+            }
         }
     }
 
-    triangle_t key = ArrayTriangle[i+1];
-    ArrayTriangle[i+1] = ArrayTriangle[high];
-    ArrayTriangle[high] = key;
-
-    return i + 1;
-}
-
-void quickSort(triangle_t arr[], int low, int high) {
-    if (low < high) {
-        int pi = partition(arr, low, high);
-
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
-    }
 }
 
 void setup(void){
     //Cada pixel usa el tipo de dato uin32_t
     color_buffer = (uint32_t*) malloc(sizeof (uint32_t)*window_width*window_height);
-    if(!color_buffer){
-        fprintf(stderr, "Error allocating memory for frame buffer,\n");
-    }
-    int point_count = 0;
-    if (typeOfFigure == 0)
-    {
+    if(!color_buffer){fprintf(stderr, "Error allocating memory for frame buffer,\n");}
+
+    if (typeOfFigure == 0){
+        int point_count = 0;
         for(float x=-1;x<=1;x+=0.25){
             for(float y=-1; y<=1;y+=0.25){
                 for(float z=-1;z<=1;z+=0.25){
@@ -78,32 +71,8 @@ void setup(void){
             }
         }
     }
-    
-    if (typeOfFigure == 1){
-        for(float row = -radious; row <= radious; row += 0.1){
-            for(float col = -radious; col <= radious; col += 0.1){
-                float x = col - radious/2;
-                float y = radious/2 - row;
-                float sumsq = x*x + y*y;
 
-                vec3_t vec_temp = {
-                    .x = row*radiousA,
-                    .y = col*radiousA,
-                    .z = 0
-                };
-
-                //printf("\n%i: x=%f    y=%f",point_count+1, vec_temp.x, vec_temp.y);
-
-                if((sumsq < radious + 0.5) && (sumsq > radious - 0.5)){
-                    cube_points[point_count] = vec_temp;
-                    //printf("\n%i: x=%f    y=%f",point_count+1, cube_points[point_count].x, cube_points[point_count].y);
-                    point_count++;
-                }
-            }
-        }
-    }
-
-    if(typeOfFigure == 2){
+    if(typeOfFigure == 1){
         char fileName[] = "shield1.obj";
         load_obj_file_data(fileName);
     }
@@ -165,18 +134,14 @@ vec2_t project(vec3_t v3){
     };
 */
     //perspectiva
+
+    
+
     vec2_t projected_point = {
             .x = (fov_factor * v3.x) / v3.z,
             .y = (fov_factor * v3.y) / v3.z
     };
 
-/*
-    //not project
-    vec2_t projected_point = {
-            .x = v3.x,
-            .y = v3.y
-    };
-*/
     return projected_point;
 }
 
@@ -241,6 +206,9 @@ void update(void){
         vec3_t vecA = vec3_sub(tempTransformedPoint[0], tempTransformedPoint[1]); //v1-v2
         vec3_t vecB = vec3_sub(tempTransformedPoint[0], tempTransformedPoint[2]); //v1-v3
 
+        vec3_normalize(&vecA);
+        vec3_normalize(&vecB);
+
         vec3_t FaceNormalVect = vec3_cross(vecA, vecB);
         vec3_t camaraRay = vec3_sub(camaraPosition, tempTransformedPoint[0]);
         float RenderingCondition = vec3_dot(camaraRay, FaceNormalVect);
@@ -268,22 +236,7 @@ void render(void){
     draw_grid();
     int ArrayLen = array_length(ArrayTriangle);
     
-     quickSort(ArrayTriangle, (int) ArrayLen/2, ArrayLen - 1);
-    /*
-    //insert sort
-    for (int i = 1; i < ArrayLen; ++i) {
-        triangle_t key = ArrayTriangle[i];
-        int j = i - 1;
-
-        while (j >= 0 && ArrayTriangle[j].depth > key.depth) {
-            ArrayTriangle[j + 1] = ArrayTriangle[j];
-            j = j - 1;
-        }
-
-        ArrayTriangle[j + 1] = key;
-    }
-    */
-
+    shell();
 
     for (int i = 0; i < ArrayLen ; i++){
         triangle_t tempTriangle = ArrayTriangle[i];
@@ -357,7 +310,6 @@ void render(void){
     clear_color_buffer(0xFF000000);
     SDL_RenderPresent(renderer);
 }
-
 
 int main(int argc, char *argv[]){
 
