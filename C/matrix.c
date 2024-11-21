@@ -1,5 +1,3 @@
-//#include <stdio.h>
-//#include <stdlib.h>
 #include <math.h>
 #include "matrix.h"
 
@@ -12,6 +10,29 @@ mat4_t mat4_identity(void){
                     }};
     return matriz;
 }
+mat4_t mat4_proyection(){
+
+    double pi = 3.14159265358979323846;
+    double fov_factor = pi/3;//640;
+    
+    float AspectRatio = window_height/window_width;
+    float zfar = 100;
+    float znear = 0.1;
+    float scalingFactor = 1/tan(fov_factor/2);
+    float zNormalitation = zfar/(zfar-znear);
+    float scalingOffset = zNormalitation*znear;
+
+
+    mat4_t m = {{ 
+            {AspectRatio*scalingFactor,  0,                  0,                                  0},
+            {0,                          scalingFactor,      0,                                  0},
+            {0,                          0,                  zNormalitation,        -scalingOffset},    
+            {0,                          0,                  1,                                  0}              
+    }}; 
+
+    return m;
+}
+
 mat4_t mat4_make_scale(float sx, float sy, float sz){
     mat4_t m = mat4_identity();
         m.m[0][0] = sx;

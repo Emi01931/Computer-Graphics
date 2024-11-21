@@ -2,11 +2,14 @@
 #define INC_3DRENDERER_MATRIX_H
 
 #include "vector.h"
+#include "display.h"
+#include <SDL2/SDL.h>
 
 typedef struct {
   float m[4][4];
 } mat4_t;
 
+mat4_t mat4_proyection();
 mat4_t mat4_identity(void);
 mat4_t mat4_make_scale(float sx, float sy, float sz);
 mat4_t mat4_make_translation(float tx, float ty, float tz);

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <strings.h>
+#include <math.h> 
 #include "array.h"
 #include "display.h"
 #include "matrix.h"
@@ -21,12 +22,14 @@ vec3_t cube_rotation = {0,0,0};
 vec3_t cube_translation = {0,0,0};
 vec3_t cube_scale = {1,1,1};
 
-float fov_factor = 640;//640;
+//variables used in proyection
+mat4_t mat_proyection;
+
+
 bool is_running = false;
 int previous_frame_time = 0;
 
-int radious = 10;
-int radiousA = 35;
+
 int typeOfFigure = 1; //cube = 0, .obj = 1
 bool hideColor = false;
 bool hideVertex = false;
@@ -60,6 +63,10 @@ void setup(void){
     color_buffer = (uint32_t*) malloc(sizeof (uint32_t)*window_width*window_height);
     if(!color_buffer){fprintf(stderr, "Error allocating memory for frame buffer,\n");}
 
+
+    //things we need to do once
+    mat_proyection = mat4_proyection();
+
     if (typeOfFigure == 0){
         int point_count = 0;
         for(float x=-1;x<=1;x+=0.25){
@@ -73,7 +80,7 @@ void setup(void){
     }
 
     if(typeOfFigure == 1){
-        char fileName[] = "shield1.obj";
+        char fileName[] = "cube.obj";
         load_obj_file_data(fileName);
     }
 }
@@ -133,14 +140,30 @@ vec2_t project(vec3_t v3){
             .y = (fov_factor * v3.y)
     };
 */
-    //perspectiva
 
-    
+
+    //perspectiva
+    //first we change the vector to R3 so we can multiply it with the matriz of proyection
+    vec4_t v4 = vec4_from_vec3(v3);
+    v4 = mat4_mul_vec4(mat_proyection, v4);
 
     vec2_t projected_point = {
-            .x = (fov_factor * v3.x) / v3.z,
-            .y = (fov_factor * v3.y) / v3.z
+            .x = v4.x / v4.w,
+            .y = v4.y / v4.w,
     };
+
+    //inverting the Y axis
+    projected_point.y *= -1;
+
+    //scaling
+    projected_point.x = projected_point.x*(window_width/2.0);
+    projected_point.y = projected_point.y*(window_height/2.0);
+
+    //centering
+    projected_point.x += window_width/2.0;
+    projected_point.y += window_height/2.0;
+
+    printf("%f  %f\n", projected_point.x, projected_point.y);
 
     return projected_point;
 }
@@ -315,11 +338,12 @@ int main(int argc, char *argv[]){
 
     is_running = initialize_window();
     setup();
+    update();
     
     while (is_running){
         previous_frame_time = SDL_GetTicks();
         process_input();
-        update();
+        
         render();
         int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
         if(time_to_wait >0 && time_to_wait <= FRAME_TARGET_TIME){
