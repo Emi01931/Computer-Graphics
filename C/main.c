@@ -144,8 +144,8 @@ vec2_t project(vec3_t v3){
 
     //perspectiva
     //first we change the vector to R3 so we can multiply it with the matriz of proyection
-    vec4_t v4 = vec4_from_vec3(v3);
-    v4 = mat4_mul_vec4(mat_proyection, v4);
+    vec4_t tv4 = vec4_from_vec3(v3);
+    vec4_t v4 = mat4_mul_vec4(mat_proyection, tv4);
 
     vec2_t projected_point = {
             .x = v4.x / v4.w,
@@ -160,10 +160,10 @@ vec2_t project(vec3_t v3){
     projected_point.y = projected_point.y*(window_height/2.0);
 
     //centering
-    projected_point.x += window_width/2.0;
-    projected_point.y += window_height/2.0;
+    //projected_point.x += window_width/2.0;
+    //projected_point.y += window_height/2.0;
 
-    printf("%f  %f\n", projected_point.x, projected_point.y);
+    //printf("%f  %f\n", projected_point.x, projected_point.y);
 
     return projected_point;
 }
@@ -338,12 +338,11 @@ int main(int argc, char *argv[]){
 
     is_running = initialize_window();
     setup();
-    update();
     
     while (is_running){
         previous_frame_time = SDL_GetTicks();
         process_input();
-        
+        update();
         render();
         int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
         if(time_to_wait >0 && time_to_wait <= FRAME_TARGET_TIME){
