@@ -11,16 +11,15 @@ mat4_t mat4_identity(void){
     return matriz;
 }
 mat4_t mat4_proyection(){
-
     double pi = 3.14159265358979323846;
-    double fov_factor = pi/3;//640;
+    double fov_factor = pi/3;
     
-    float AspectRatio = window_height/window_width;
-    float zfar = 100;
+    float AspectRatio = (float)window_height/window_width;
+    float zfar = 100.0;
     float znear = 0.1;
-    float scalingFactor = 1/tan(fov_factor/2);
-    float zNormalitation = zfar/(zfar-znear);
-    float scalingOffset = zNormalitation*znear;
+    float scalingFactor = (float)1/tan(fov_factor/2);
+    float zNormalitation = (float)zfar/(zfar-znear);
+    float scalingOffset = (float)zNormalitation*znear;
 
 
     mat4_t m = {{ 

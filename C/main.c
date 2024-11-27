@@ -80,7 +80,7 @@ void setup(void){
     }
 
     if(typeOfFigure == 1){
-        char fileName[] = "cube.obj";
+        char fileName[] = "shield1.obj";
         load_obj_file_data(fileName);
     }
 }
@@ -147,23 +147,28 @@ vec2_t project(vec3_t v3){
     vec4_t tv4 = vec4_from_vec3(v3);
     vec4_t v4 = mat4_mul_vec4(mat_proyection, tv4);
 
-    vec2_t projected_point = {
+    //perspective divide
+    vec3_t perspective_divide = {
             .x = v4.x / v4.w,
             .y = v4.y / v4.w,
+            .z = v4.z / v4.w
     };
 
     //inverting the Y axis
-    projected_point.y *= -1;
+    perspective_divide.y *= -1;
 
     //scaling
-    projected_point.x = projected_point.x*(window_width/2.0);
-    projected_point.y = projected_point.y*(window_height/2.0);
+    perspective_divide.x = perspective_divide.x*(window_width/2.0);
+    perspective_divide.y = perspective_divide.y*(window_height/2.0);
 
     //centering
-    //projected_point.x += window_width/2.0;
-    //projected_point.y += window_height/2.0;
+    //perspective_divide.x += window_width/2.0;
+    //perspective_divide.y += window_height/2.0;
 
-    //printf("%f  %f\n", projected_point.x, projected_point.y);
+    vec2_t projected_point = {
+            .x = perspective_divide.x,
+            .y = perspective_divide.y
+    };
 
     return projected_point;
 }
