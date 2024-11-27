@@ -1,5 +1,3 @@
-//#include <stdio.h>
-//#include <stdlib.h>
 #include <math.h>
 #include "matrix.h"
 
@@ -12,6 +10,28 @@ mat4_t mat4_identity(void){
                     }};
     return matriz;
 }
+mat4_t mat4_proyection(){
+    double pi = 3.14159265358979323846;
+    double fov_factor = pi/3;
+    
+    float AspectRatio = (float)window_height/window_width;
+    float zfar = 100.0;
+    float znear = 0.1;
+    float scalingFactor = (float)1/tan(fov_factor/2);
+    float zNormalitation = (float)zfar/(zfar-znear);
+    float scalingOffset = (float)zNormalitation*znear;
+
+
+    mat4_t m = {{ 
+            {AspectRatio*scalingFactor,  0,                  0,                                  0},
+            {0,                          scalingFactor,      0,                                  0},
+            {0,                          0,                  zNormalitation,        -scalingOffset},    
+            {0,                          0,                  1,                                  0}              
+    }}; 
+
+    return m;
+}
+
 mat4_t mat4_make_scale(float sx, float sy, float sz){
     mat4_t m = mat4_identity();
         m.m[0][0] = sx;
@@ -67,10 +87,12 @@ mat4_t mat4_make_rotation_z(float angle) {
 }
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
     vec4_t result;
+
     result.x = m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3] * v.w;
     result.y = m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[1][3] * v.w;
     result.z = m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[2][3] * v.w;
     result.w = m.m[3][0] * v.x + m.m[3][1] * v.y + m.m[3][2] * v.z + m.m[3][3] * v.w;
+        
     return result;
 }
 mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
