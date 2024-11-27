@@ -199,7 +199,7 @@ void update(void){
         vec3_t tempTransformedPoint[3];
         vec2_t projected_points[3];
 
-//Transformando y proyectando los vertices
+//Transforming and projecting vertex
         for(int j = 0; j<3;j++){
             vec4_t transformed_point = vec4_from_vec3(verticesCara[j]);
             transformed_point = mat4_mul_vec4(world_matrix, transformed_point);
@@ -207,7 +207,7 @@ void update(void){
             tempTransformedPoint[j] = vec3_from_vec4(transformed_points[j]);
         }
         
-//calculando el camRay y si son visibles las caras
+//calculating camRay and if the faces vector faces the camera
 
         vec3_t camaraPosition = {0,0,0};
 
@@ -229,7 +229,7 @@ void update(void){
                 projected_points[j].y += (window_height/2);
             }
 
-            triangle_t trianguloProyectado = {  //Se guardan los puntos proyectados que conforman el triangulo
+            triangle_t trianguloProyectado = {  //Proyected poins are stored
                 .points[0] = projected_points[0],
                 .points[1] = projected_points[1],
                 .points[2] = projected_points[2],
@@ -278,25 +278,12 @@ void render(void){
                 temp2 = temp1;
                 temp1 = temp0;
                 temp0 = tempTriangle.points[2];
-            }/*
-            if((int)temp2.y < (int)temp1.y){
-                vec2_t temp = temp1;
-                temp1 = temp2;
-                temp2 = temp;
-            }*/
-
-            //printf("\n%.1f, %.1f, %.1f",temp0.y,temp1.y,temp2.y);
-
-            //if(i>-1)
-                //printf("\t%.1f, %.1f, %.1f",tempTriangle.points[0].y,tempTriangle.points[1].y,tempTriangle.points[2].y);
-
+            }
 
             float mx = (((temp1.y-temp0.y)*(temp2.x-temp0.x))/
                         (temp2.y-temp0.y)) + temp0.x;
 
             float my = temp1.y;
-
-            //printf(" ,%i", mx);
 
             if((int)temp0.y == (int)temp1.y){
                 draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, color);
