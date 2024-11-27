@@ -298,25 +298,13 @@ void render(void){
                 temp2 = temp1;
                 temp1 = temp0;
                 temp0 = tempTriangle.points[2];
-            }/*
-            if((int)temp2.y < (int)temp1.y){
-                vec2_t temp = temp1;
-                temp1 = temp2;
-                temp2 = temp;
-            }*/
-
-            //printf("\n%.1f, %.1f, %.1f",temp0.y,temp1.y,temp2.y);
-
-            //if(i>-1)
-                //printf("\t%.1f, %.1f, %.1f",tempTriangle.points[0].y,tempTriangle.points[1].y,tempTriangle.points[2].y);
+            }
 
 
             float mx = (((temp1.y-temp0.y)*(temp2.x-temp0.x))/
                         (temp2.y-temp0.y)) + temp0.x;
 
             float my = temp1.y;
-
-            //printf(" ,%i", mx);
 
             if((int)temp0.y == (int)temp1.y){
                 draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, color);
