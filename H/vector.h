@@ -19,6 +19,9 @@ typedef struct {
     float w;
 } vec4_t;
 
+typedef struct {
+    vec3_t directions;
+} light_t;
 
 // Vector 2D functions
 float vec2_length(vec2_t v);

@@ -75,22 +75,12 @@ void draw_grid(void){
         }
     }
 }
-
-/*void draw_grid(void) {
-    for (int y = 0; y < window_height; y += 10) {
-        for (int x = 0; x < window_width; x += 10) {
-            color_buffer[(window_width * y) + x] = 0xFF444444;
-        }
-    }
-}*/
-
 void draw_pixel(int x, int y, uint32_t color){
     if (x >= 0 && x < window_width && y >= 0 && y < window_height)
     {
         color_buffer[(window_width * y) + x] = color;
     }
 }
-
 void draw_rect(int x, int y, int width, int height, uint32_t color){
     for (int i = 0; i < width; i++)
     {
@@ -120,7 +110,6 @@ void render_color_buffer(void){
                    NULL  // the entire rendering target, no specific rectangle (section)
     );
 }
-
 void clear_color_buffer(uint32_t color){
     for (int i = 0; i < window_width * window_height; i++)
     {
@@ -160,7 +149,6 @@ void draw_line(int x0, int y0, int x1, int y1, color_t color){
     }
     
 }
-
 void draw_flat_bottom(int x0, int y0, int x1, int y1, int x2, int y2, color_t color){
     float xStart = x0;
     float xEnd = x0;
@@ -208,4 +196,17 @@ void draw_flat_top(int x0, int y0, int x1, int y1, int x2, int y2, color_t color
         xStart -= m1;
         xEnd -= m2;
     }
+}
+
+color_t light_apply_intensity (color_t original_color, float percentage_factor) {
+    if (percentage_factor < 0) percentage_factor = 0;
+    if (percentage_factor > 1) percentage_factor = 1;
+
+    //The original color is divided in the RGB and each one is multiplied by the light intensity factor
+    color_t a = (original_color & 0xFF000000); 
+    color_t r = (original_color & 0x00FF0000)*percentage_factor;
+    color_t g = (original_color & 0x0000FF00)*percentage_factor;
+    color_t b = (original_color & 0x000000FF)*percentage_factor;
+    color_t new_color = a | (r & 0x00FF0000) | (g & 0x0000FF00) | (b & 0x000000FF);
+    return new_color;
 }
