@@ -13,7 +13,7 @@
 #include "vector.h"
 
 triangle_t* ArrayTriangle = NULL;
-light_t light = {.directions = {0,0,1}};
+light_t light = {.directions = {1,0,0}};
 color_t originalColor = 0x00ffff00;
 color_t lineColor = 0xFFFF00FF;
 
@@ -227,13 +227,14 @@ void update(void){
         if(RenderingCondition > 0){
             //flat shading
             color_t newColor;
+            float lightIntensity;
             if(hideFlatShading == false){
                 vecA = vec3_sub(tempTransformedPoint[0], tempTransformedPoint[1]);
                 vecB = vec3_sub(tempTransformedPoint[0], tempTransformedPoint[2]);
                 FaceNormalVect = vec3_cross(vecA, vecB);
                 vec3_normalize(&FaceNormalVect);
 
-                float lightIntensity = - vec3_dot(FaceNormalVect, light.directions);
+                lightIntensity = - vec3_dot(FaceNormalVect, light.directions);
                 newColor = light_apply_intensity(originalColor, lightIntensity);
             }else{
                 newColor = originalColor;
@@ -249,11 +250,13 @@ void update(void){
             }
 
             triangle_t trianguloProyectado = {
-                .points[0] = projected_points[0],
-                .points[1] = projected_points[1],
-                .points[2] = projected_points[2],
-                .depth     = (FaceNormalVect.x+FaceNormalVect.y+FaceNormalVect.z)/3,
-                .color     = newColor
+                .points[0]  = projected_points[0],
+                .points[1]  = projected_points[1],
+                .points[2]  = projected_points[2],
+                .depth      = (FaceNormalVect.x+FaceNormalVect.y+FaceNormalVect.z)/3,
+                .color      = newColor,
+                .normalVec  = FaceNormalVect,
+                .lightI     = lightIntensity
             };
             array_push(ArrayTriangle, trianguloProyectado); 
         }
@@ -265,7 +268,7 @@ void render(void){
     int ArrayLen = array_length(ArrayTriangle);
     shell();
 
-
+    //send the ArrayTriangle and an int, the int will be the face we want to calculate their gouraut  
 
     for (int i = 0; i < ArrayLen ; i++){
         triangle_t tempTriangle = ArrayTriangle[i];
@@ -304,6 +307,9 @@ void render(void){
                         (temp2.y-temp0.y)) + temp0.x;
 
             float my = temp1.y;
+
+            //vec3_t VertexIntencity = gouraud(ArrayTriangle, light);
+            gouraudS(ArrayTriangle);
 
             if((int)temp0.y == (int)temp1.y){
                 draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.color);

@@ -1,5 +1,6 @@
 #include "display.h"
 #include "vector.h"
+#include "triangle.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -122,6 +123,111 @@ void destroy_window(void){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+vec3_t gouraud(triangle_t* ArrayTriangle, light_t light){
+    //Check each face, from that face we check which faces have the same vertex, with that we calculate the average normal vector
+    for(int k=0;k<=array_length(ArrayTriangle);k++){
+        vec3_t Nv1 = {0,0,0};
+        vec3_t Nv2 = {0,0,0};
+        vec3_t Nv3 = {0,0,0};
+        for(int i=0;i<=array_length(ArrayTriangle);i++){
+            if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[0].y){
+                Nv1 = vec3_add(Nv1, ArrayTriangle[i].normalVec);
+            }
+            else if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[1].y){
+                Nv2 = vec3_add(Nv2, ArrayTriangle[i].normalVec);
+            }
+            else if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[2].y){
+                Nv3 = vec3_add(Nv3, ArrayTriangle[i].normalVec);
+            }
+            //
+            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[0].y){
+                Nv1 = vec3_add(Nv1, ArrayTriangle[i].normalVec);
+            }
+            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[1].y){
+                Nv2 = vec3_add(Nv2, ArrayTriangle[i].normalVec);
+            }
+            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[2].y){
+                Nv3 = vec3_add(Nv3, ArrayTriangle[i].normalVec);
+            }
+            //
+            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[0].y){
+                Nv1 = vec3_add(Nv1, ArrayTriangle[i].normalVec);
+            }
+            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[1].y){
+                Nv2 = vec3_add(Nv2, ArrayTriangle[i].normalVec);
+            }
+            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[2].y){
+                Nv3 = vec3_add(Nv3, ArrayTriangle[i].normalVec);
+            }
+        }
+
+        vec3_normalize(&Nv1);
+        vec3_normalize(&Nv2);
+        vec3_normalize(&Nv3);
+
+        ArrayTriangle[k].I1 = vec3_dot(Nv1, light.directions);    
+        ArrayTriangle[k].I2 = vec3_dot(Nv2, light.directions);
+        ArrayTriangle[k].I3 = vec3_dot(Nv3, light.directions);
+    }
+}
+
+void gouraudS(triangle_t* ArrayTriangle){
+    for(int k=0;k<=array_length(ArrayTriangle);k++){
+        int I1 = 0;
+        int I2 = 0;
+        int I3 = 0;
+
+        int totI1 = 0;
+        int totI2 = 0;
+        int totI3 = 0;
+
+        for(int i=0;i<=array_length(ArrayTriangle);i++){
+            if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[0].y){
+                I1 =+ ArrayTriangle[i].lightI;
+                totI1 =+ 1;
+            }
+            else if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[1].y){
+                I2 =+ ArrayTriangle[i].lightI;
+                totI2 =+ 1;
+            }
+            else if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[2].y){
+                I3 =+ ArrayTriangle[i].lightI;
+                totI3 =+ 1;
+            }
+            //
+            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[0].y){
+                I1 =+ ArrayTriangle[i].lightI;
+                totI1 =+ 1;
+            }
+            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[1].y){
+                I2 =+ ArrayTriangle[i].lightI;
+                totI2 =+ 1;
+            }
+            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[2].y){
+                I3 =+ ArrayTriangle[i].lightI;
+                totI3 =+ 1;
+            }
+            //
+            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[0].y){
+                I1 =+ ArrayTriangle[i].lightI;
+                totI1 =+ 1;
+            }
+            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[1].y){
+                I2 =+ ArrayTriangle[i].lightI;
+                totI2 =+ 1;
+            }
+            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[2].y){
+                I3 =+ ArrayTriangle[i].lightI;
+                totI3 =+ 1;
+            }
+        }
+
+        ArrayTriangle[k].I1 = I1/totI1;    
+        ArrayTriangle[k].I2 = I2/totI2;
+        ArrayTriangle[k].I3 = I3/totI3;
+    }
 }
 
 void draw_line(int x0, int y0, int x1, int y1, color_t color){
