@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 #include "vector.h"
-#include "display.h"
+
+typedef uint32_t color_t;
 
 typedef struct {
     int a;

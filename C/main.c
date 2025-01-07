@@ -279,7 +279,7 @@ void render(void){
             draw_pixel(tempTriangle.points[2].x, tempTriangle.points[2].y, tempTriangle.color);
         }
         if(hideEdge == false)
-            draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, lineColor);
+            //draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, lineColor);
         if(hideColor == false){
             vec2_t temp0 = tempTriangle.points[0];//3
             vec2_t temp1;
@@ -312,12 +312,12 @@ void render(void){
             gouraudS(ArrayTriangle);
 
             if((int)temp0.y == (int)temp1.y){
-                draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.color);
+                draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.I1, tempTriangle.I2, tempTriangle.I3, tempTriangle.color);
             }else if((int)temp1.y == (int)temp2.y){
-                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.color);
+                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.I1, tempTriangle.I2, tempTriangle.I3, tempTriangle.color);
             }else{
-                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, tempTriangle.color);
-                draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, tempTriangle.color);
+                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, tempTriangle.I1, tempTriangle.I2, tempTriangle.I3, tempTriangle.color);
+                draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, tempTriangle.I1, tempTriangle.I2, tempTriangle.I3, tempTriangle.color);
             }
 
             if((int)temp0.y == (int)temp2.y && (int)temp1.y == (int)temp0.y){

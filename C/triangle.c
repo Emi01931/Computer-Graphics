@@ -1,5 +1,5 @@
-#include "display.h"
 #include "triangle.h"
+#include "display.h"
 
 // Draw a triangle using three raw line calls
 void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {

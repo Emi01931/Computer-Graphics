@@ -1,6 +1,6 @@
 #include "display.h"
 #include "vector.h"
-#include "triangle.h"
+#include "array.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -127,7 +127,8 @@ void destroy_window(void){
 
 vec3_t gouraud(triangle_t* ArrayTriangle, light_t light){
     //Check each face, from that face we check which faces have the same vertex, with that we calculate the average normal vector
-    for(int k=0;k<=array_length(ArrayTriangle);k++){
+    int ArrayLen = array_length(ArrayTriangle);
+    for(int k=0;k<=ArrayLen;k++){
         vec3_t Nv1 = {0,0,0};
         vec3_t Nv2 = {0,0,0};
         vec3_t Nv3 = {0,0,0};
@@ -255,7 +256,37 @@ void draw_line(int x0, int y0, int x1, int y1, color_t color){
     }
     
 }
-void draw_flat_bottom(int x0, int y0, int x1, int y1, int x2, int y2, color_t color){
+
+void draw_lineI(int x0, int y0, int x1, int y1, float Ia, float Ib, color_t color){
+    int dx = abs(x1 - x0);
+    int dy = abs(y1 - y0);
+
+    int xinc = (x0 < x1) ? 1:-1;
+    int yinc = (y0 < y1) ? 1:-1;
+    int err = dx - dy;
+
+    int xa = x0;
+
+    while (true){
+        float Ip = Ib - ((Ib-Ia)/(x1-xa))*(x1-xa);
+        color = color * Ip;
+        draw_pixel(x0, y0, color);
+        if(x0 == x1 && y0 == y1)
+            break;
+        int e2 = 2*err;
+        if(e2>-dy){
+            err -= dy;
+            x0 += xinc;
+        }
+        if (e2<dx){
+            err += dx;
+            y0 += yinc;
+        }
+        
+    }
+    
+}
+void draw_flat_bottom(int x0, int y0, int x1, int y1, int x2, int y2, float I0, float I1, float I2, color_t color){
     float xStart = x0;
     float xEnd = x0;
     //printf("\tB");
@@ -274,12 +305,14 @@ void draw_flat_bottom(int x0, int y0, int x1, int y1, int x2, int y2, color_t co
     }
 
     for(int y = y0; y < y2; y++){
-        draw_line(xStart,y,xEnd,y, color);
+        float Ia = I0 - ((I0-I1)/(y0-y1))*(y0-y);
+        float Ib = I0 - ((I0-I2)/(y0-y2))*(y0-y);
+        draw_lineI(xStart, y, xEnd, y, Ia, Ib, color);
         xStart += m1;
         xEnd += m2;
     }
 }
-void draw_flat_top(int x0, int y0, int x1, int y1, int x2, int y2, color_t color){
+void draw_flat_top(int x0, int y0, int x1, int y1, int x2, int y2, float I0, float I1, float I2, color_t color){
     float xStart = x2;
     float xEnd = x2;
     //printf("\tT");
@@ -298,7 +331,9 @@ void draw_flat_top(int x0, int y0, int x1, int y1, int x2, int y2, color_t color
     }
     
     for(int y = y2; y >= y0; y--){
-        draw_line(xStart,y,xEnd,y, color);
+        float Ia = I0 - ((I0-I1)/(y0-y1))*(y0-y);
+        float Ib = I0 - ((I0-I2)/(y0-y2))*(y0-y);
+        draw_lineI(xStart,y,xEnd,y, Ia, Ib, color);
         xStart -= m1;
         xEnd -= m2;
     }
