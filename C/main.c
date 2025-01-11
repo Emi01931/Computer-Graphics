@@ -13,7 +13,7 @@
 #include "vector.h"
 
 triangle_t* ArrayTriangle = NULL;
-light_t light = {.directions = {1,0,0}};
+light_t light = {.directions = {1,1,0}};
 color_t originalColor = 0x00ffff00;
 color_t lineColor = 0xFFFF00FF;
 
@@ -61,7 +61,7 @@ void setup(void){
     mat_proyection = mat4_proyection();
 
 
-    char fileName[] = "shield1.obj";
+    char fileName[] = "cube.obj";
     load_obj_file_data(fileName);
 }
 
@@ -220,6 +220,7 @@ void update(void){
         vec3_normalize(&vecB);
 
         vec3_t FaceNormalVect = vec3_cross(vecA, vecB);
+        vec3_t FaceNormalVectNotNormalized = FaceNormalVect;
         vec3_t camaraRay = vec3_sub(camaraPosition, tempTransformedPoint[0]);
         float RenderingCondition = vec3_dot(camaraRay, FaceNormalVect);
 
@@ -232,6 +233,7 @@ void update(void){
                 vecA = vec3_sub(tempTransformedPoint[0], tempTransformedPoint[1]);
                 vecB = vec3_sub(tempTransformedPoint[0], tempTransformedPoint[2]);
                 FaceNormalVect = vec3_cross(vecA, vecB);
+
                 vec3_normalize(&FaceNormalVect);
 
                 lightIntensity = - vec3_dot(FaceNormalVect, light.directions);
@@ -256,7 +258,10 @@ void update(void){
                 .depth      = (FaceNormalVect.x+FaceNormalVect.y+FaceNormalVect.z)/3,
                 .color      = newColor,
                 .normalVec  = FaceNormalVect,
-                .lightI     = lightIntensity
+                .lightI1    = lightIntensity,
+                .I1         = {0,0,0},
+                .I2         = {0,0,0},
+                .I3         = {0,0,0}
             };
             array_push(ArrayTriangle, trianguloProyectado); 
         }
@@ -268,6 +273,8 @@ void render(void){
     int ArrayLen = array_length(ArrayTriangle);
     shell();
 
+    //printf("\tShell, Len %i", ArrayLen);
+
     //send the ArrayTriangle and an int, the int will be the face we want to calculate their gouraut  
 
     for (int i = 0; i < ArrayLen ; i++){
@@ -278,8 +285,9 @@ void render(void){
             draw_pixel(tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.color);
             draw_pixel(tempTriangle.points[2].x, tempTriangle.points[2].y, tempTriangle.color);
         }
-        if(hideEdge == false)
+        if(hideEdge == false){
             //draw_triangle(tempTriangle.points[0].x, tempTriangle.points[0].y, tempTriangle.points[1].x, tempTriangle.points[1].y, tempTriangle.points[2].x, tempTriangle.points[2].y, lineColor);
+        }
         if(hideColor == false){
             vec2_t temp0 = tempTriangle.points[0];//3
             vec2_t temp1;
@@ -302,22 +310,23 @@ void render(void){
                 temp0 = tempTriangle.points[2];
             }
 
-
             float mx = (((temp1.y-temp0.y)*(temp2.x-temp0.x))/
                         (temp2.y-temp0.y)) + temp0.x;
 
             float my = temp1.y;
 
             //vec3_t VertexIntencity = gouraud(ArrayTriangle, light);
-            gouraudS(ArrayTriangle);
+            //printf("\tGour");
+            gouraudS(ArrayTriangle, light);
+            
 
             if((int)temp0.y == (int)temp1.y){
-                draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.I1, tempTriangle.I2, tempTriangle.I3, tempTriangle.color);
+                draw_flat_top(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.lightI1, tempTriangle.lightI2, tempTriangle.lightI3, tempTriangle.color);
             }else if((int)temp1.y == (int)temp2.y){
-                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.I1, tempTriangle.I2, tempTriangle.I3, tempTriangle.color);
+                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, temp2.x, temp2.y, tempTriangle.lightI1, tempTriangle.lightI2, tempTriangle.lightI3, tempTriangle.color);
             }else{
-                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, tempTriangle.I1, tempTriangle.I2, tempTriangle.I3, tempTriangle.color);
-                draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, tempTriangle.I1, tempTriangle.I2, tempTriangle.I3, tempTriangle.color);
+                draw_flat_bottom(temp0.x, temp0.y, temp1.x, temp1.y, mx, my, tempTriangle.lightI1, tempTriangle.lightI2, tempTriangle.lightI3, tempTriangle.color);
+                draw_flat_top(temp1.x, temp1.y, mx, my, temp2.x, temp2.y, tempTriangle.lightI1, tempTriangle.lightI2, tempTriangle.lightI3, tempTriangle.color);
             }
 
             if((int)temp0.y == (int)temp2.y && (int)temp1.y == (int)temp0.y){
@@ -325,6 +334,8 @@ void render(void){
             }
         }
     }
+
+    //printf("\tEndRender");
 
 
     render_color_buffer();

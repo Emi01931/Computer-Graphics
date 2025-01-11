@@ -18,10 +18,12 @@ typedef struct {
     float depth;
     color_t color;
     vec3_t normalVec;
-    float lightI;
-    float I1;
-    float I2;
-    float I3;
+    float lightI1;
+    float lightI2;
+    float lightI3;
+    vec3_t I1;
+    vec3_t I2;
+    vec3_t I3;
 } triangle_t;
 
 void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);

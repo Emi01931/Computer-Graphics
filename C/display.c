@@ -2,6 +2,8 @@
 #include "vector.h"
 #include "array.h"
 
+#include <math.h> 
+
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 SDL_Texture *color_buffer_texture = NULL;
@@ -125,109 +127,93 @@ void destroy_window(void){
     SDL_Quit();
 }
 
-vec3_t gouraud(triangle_t* ArrayTriangle, light_t light){
-    //Check each face, from that face we check which faces have the same vertex, with that we calculate the average normal vector
-    int ArrayLen = array_length(ArrayTriangle);
-    for(int k=0;k<=ArrayLen;k++){
-        vec3_t Nv1 = {0,0,0};
-        vec3_t Nv2 = {0,0,0};
-        vec3_t Nv3 = {0,0,0};
-        for(int i=0;i<=array_length(ArrayTriangle);i++){
-            if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[0].y){
-                Nv1 = vec3_add(Nv1, ArrayTriangle[i].normalVec);
-            }
-            else if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[1].y){
-                Nv2 = vec3_add(Nv2, ArrayTriangle[i].normalVec);
-            }
-            else if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[2].y){
-                Nv3 = vec3_add(Nv3, ArrayTriangle[i].normalVec);
-            }
-            //
-            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[0].y){
-                Nv1 = vec3_add(Nv1, ArrayTriangle[i].normalVec);
-            }
-            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[1].y){
-                Nv2 = vec3_add(Nv2, ArrayTriangle[i].normalVec);
-            }
-            else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[2].y){
-                Nv3 = vec3_add(Nv3, ArrayTriangle[i].normalVec);
-            }
-            //
-            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[0].y){
-                Nv1 = vec3_add(Nv1, ArrayTriangle[i].normalVec);
-            }
-            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[1].y){
-                Nv2 = vec3_add(Nv2, ArrayTriangle[i].normalVec);
-            }
-            else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[2].y){
-                Nv3 = vec3_add(Nv3, ArrayTriangle[i].normalVec);
-            }
-        }
-
-        vec3_normalize(&Nv1);
-        vec3_normalize(&Nv2);
-        vec3_normalize(&Nv3);
-
-        ArrayTriangle[k].I1 = vec3_dot(Nv1, light.directions);    
-        ArrayTriangle[k].I2 = vec3_dot(Nv2, light.directions);
-        ArrayTriangle[k].I3 = vec3_dot(Nv3, light.directions);
-    }
-}
-
-void gouraudS(triangle_t* ArrayTriangle){
+void gouraudS(triangle_t* ArrayTriangle, light_t light){
     for(int k=0;k<=array_length(ArrayTriangle);k++){
-        int I1 = 0;
-        int I2 = 0;
-        int I3 = 0;
+        //vec3_t I1 = ArrayTriangle[k].normalVec;
+        //vec3_t I1 = ArrayTriangle[k].normalVec;
+        //vec3_t I1 = ArrayTriangle[k].normalVec;
 
-        int totI1 = 0;
-        int totI2 = 0;
-        int totI3 = 0;
+        int totI1 = 1;
+        int totI2 = 1;
+        int totI3 = 1;
+
+        if(isnan(ArrayTriangle[k].I1.x) || isnan(ArrayTriangle[k].I1.y) || isnan(ArrayTriangle[k].I1.z))
+            printf("\nI1 x = %f, y = %f, z = %f", ArrayTriangle[k].I1.x, ArrayTriangle[k].I1.y, ArrayTriangle[k].I1.z);
+
+        if(isnan(ArrayTriangle[k].I2.x) || isnan(ArrayTriangle[k].I2.y) || isnan(ArrayTriangle[k].I2.z))
+            printf("\nI2 - %i\tx = %f, y = %f, z = %f", k, ArrayTriangle[k].I2.x, ArrayTriangle[k].I2.y, ArrayTriangle[k].I2.z);
+        
+        if(isnan(ArrayTriangle[k].I3.x) || isnan(ArrayTriangle[k].I3.y) || isnan(ArrayTriangle[k].I3.z))
+            printf("\nI3 x = %f, y = %f, z = %f", ArrayTriangle[k].I3.x, ArrayTriangle[k].I3.y, ArrayTriangle[k].I3.z);
+
 
         for(int i=0;i<=array_length(ArrayTriangle);i++){
             if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[0].y){
-                I1 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I1 = vec3_add(ArrayTriangle[k].I1, ArrayTriangle[i].normalVec);
                 totI1 =+ 1;
             }
             else if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[1].y){
-                I2 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I2 = vec3_add(ArrayTriangle[k].I2, ArrayTriangle[i].normalVec);
                 totI2 =+ 1;
             }
             else if(ArrayTriangle[i].points[0].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[0].y == ArrayTriangle[k].points[2].y){
-                I3 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I3 = vec3_add(ArrayTriangle[k].I3, ArrayTriangle[i].normalVec);
                 totI3 =+ 1;
             }
             //
             else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[0].y){
-                I1 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I1 = vec3_add(ArrayTriangle[k].I1, ArrayTriangle[i].normalVec);
                 totI1 =+ 1;
             }
             else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[1].y){
-                I2 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I2 = vec3_add(ArrayTriangle[k].I2, ArrayTriangle[i].normalVec);
                 totI2 =+ 1;
             }
             else if(ArrayTriangle[i].points[1].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[1].y == ArrayTriangle[k].points[2].y){
-                I3 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I3 = vec3_add(ArrayTriangle[k].I3, ArrayTriangle[i].normalVec);
                 totI3 =+ 1;
             }
             //
             else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[0].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[0].y){
-                I1 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I1 = vec3_add(ArrayTriangle[k].I1, ArrayTriangle[i].normalVec);
                 totI1 =+ 1;
             }
             else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[1].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[1].y){
-                I2 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I2 = vec3_add(ArrayTriangle[k].I2, ArrayTriangle[i].normalVec);
                 totI2 =+ 1;
             }
             else if(ArrayTriangle[i].points[2].x == ArrayTriangle[k].points[2].x && ArrayTriangle[i].points[2].y == ArrayTriangle[k].points[2].y){
-                I3 =+ ArrayTriangle[i].lightI;
+                ArrayTriangle[k].I3 = vec3_add(ArrayTriangle[k].I3, ArrayTriangle[i].normalVec);
                 totI3 =+ 1;
             }
         }
 
-        ArrayTriangle[k].I1 = I1/totI1;    
-        ArrayTriangle[k].I2 = I2/totI2;
-        ArrayTriangle[k].I3 = I3/totI3;
+/*
+        if(isnan(ArrayTriangle[k].I1.x) || isnan(ArrayTriangle[k].I1.y) || isnan(ArrayTriangle[k].I1.z))
+            printf("\nI1 x = %f, y = %f, z = %f", ArrayTriangle[k].I1.x, ArrayTriangle[k].I1.y, ArrayTriangle[k].I1.z);
+
+        if(isnan(ArrayTriangle[k].I2.x) || isnan(ArrayTriangle[k].I2.y) || isnan(ArrayTriangle[k].I2.z)){
+            printf("\n\t\tDespues");
+            printf("\nI2 - %i\tx = %f, y = %f, z = %f", k, ArrayTriangle[k].I2.x, ArrayTriangle[k].I2.y, ArrayTriangle[k].I2.z);
+        }
+        
+        if(isnan(ArrayTriangle[k].I3.x) || isnan(ArrayTriangle[k].I3.y) || isnan(ArrayTriangle[k].I3.z))
+            printf("\nI3 x = %f, y = %f, z = %f", ArrayTriangle[k].I3.x, ArrayTriangle[k].I3.y, ArrayTriangle[k].I3.z);
+*/
+        vec3_normalize(&ArrayTriangle[k].I1);
+        vec3_normalize(&ArrayTriangle[k].I2);
+        vec3_normalize(&ArrayTriangle[k].I3);
+
+        ArrayTriangle[k].lightI1 = vec3_dot(ArrayTriangle[k].I1, light.directions);    
+        //printf("\n\n\t%f", ArrayTriangle[k].lightI1);
+        ArrayTriangle[k].lightI2 = vec3_dot(ArrayTriangle[k].I2, light.directions);
+        //printf("\t%f", ArrayTriangle[k].lightI2);
+        ArrayTriangle[k].lightI3 = vec3_dot(ArrayTriangle[k].I3, light.directions);
+        //printf("\t%f", ArrayTriangle[k].lightI3);
+
+        //printf("\t\t%f, %f, %f\n", ArrayTriangle[k].lightI1, ArrayTriangle[k].lightI2, ArrayTriangle[k].lightI3);
+        //printf("\n");
+
     }
 }
 
@@ -257,7 +243,7 @@ void draw_line(int x0, int y0, int x1, int y1, color_t color){
     
 }
 
-void draw_lineI(int x0, int y0, int x1, int y1, float Ia, float Ib, color_t color){
+void draw_lineI(int x0, int y0, int x1, int y1, float Ia, float Ib, color_t color){ //x0 = x ini, x1 = end
     int dx = abs(x1 - x0);
     int dy = abs(y1 - y0);
 
@@ -266,11 +252,26 @@ void draw_lineI(int x0, int y0, int x1, int y1, float Ia, float Ib, color_t colo
     int err = dx - dy;
 
     int xa = x0;
+    float Ip = 0;
 
     while (true){
-        float Ip = Ib - ((Ib-Ia)/(x1-xa))*(x1-xa);
-        color = color * Ip;
-        draw_pixel(x0, y0, color);
+        if (x1 = xa)
+        {
+            Ip = Ib - (ceroDiv)*(x1-x0);
+        }
+        else
+        {
+            Ip = Ib - ((Ib-Ia)/(x1-xa))*(x1-x0);
+        }
+        
+        if(isnan(Ip)){
+            //printf("\n%f, Ib: %f, Ia: %f, x1: %i, xa: %i, x0: %i", Ip, Ib, Ia, x1, x1, x0);
+        }
+
+        
+        color = light_apply_intensity(color, Ip);
+
+        draw_pixel(x0, y0, color);// color);
         if(x0 == x1 && y0 == y1)
             break;
         int e2 = 2*err;
@@ -286,10 +287,10 @@ void draw_lineI(int x0, int y0, int x1, int y1, float Ia, float Ib, color_t colo
     }
     
 }
+
 void draw_flat_bottom(int x0, int y0, int x1, int y1, int x2, int y2, float I0, float I1, float I2, color_t color){
     float xStart = x0;
     float xEnd = x0;
-    //printf("\tB");
     float m2;
     float m1;
     if(y1 != y0){
@@ -305,17 +306,39 @@ void draw_flat_bottom(int x0, int y0, int x1, int y1, int x2, int y2, float I0, 
     }
 
     for(int y = y0; y < y2; y++){
-        float Ia = I0 - ((I0-I1)/(y0-y1))*(y0-y);
-        float Ib = I0 - ((I0-I2)/(y0-y2))*(y0-y);
+        float Ia; 
+        float Ib; 
+
+        if(y0 != y1)
+        {
+            Ia = I0 - ((I0-I1)/(y0-y1))*(y0-y);
+        }
+        else 
+        {
+            Ia = I0 - ceroDiv;
+        }
+
+        if(y0 != y2)
+        {
+            Ib = I0 - ((I0-I2)/(y0-y2))*(y0-y);
+        }
+        else 
+        {
+            Ib = I0 - ceroDiv;
+        }  
+
+        if(isnan(Ib))
+            printf("\nFB: %f, %f, %i, %i", I0, I2, y0, y2);
+
         draw_lineI(xStart, y, xEnd, y, Ia, Ib, color);
         xStart += m1;
         xEnd += m2;
     }
+    //printf("\nFlatB");
 }
 void draw_flat_top(int x0, int y0, int x1, int y1, int x2, int y2, float I0, float I1, float I2, color_t color){
     float xStart = x2;
     float xEnd = x2;
-    //printf("\tT");
     float m2;
     float m1;
     if(y2 != y0){
@@ -331,12 +354,35 @@ void draw_flat_top(int x0, int y0, int x1, int y1, int x2, int y2, float I0, flo
     }
     
     for(int y = y2; y >= y0; y--){
-        float Ia = I0 - ((I0-I1)/(y0-y1))*(y0-y);
-        float Ib = I0 - ((I0-I2)/(y0-y2))*(y0-y);
+        float Ia; 
+        float Ib; 
+
+        if(y0 != y1)
+        {
+            Ia = I0 - ((I0-I1)/(y0-y1))*(y0-y);
+        }
+        else 
+        {
+            Ia = I0 - ceroDiv;
+        }
+
+        if(y0 != y2)
+        {
+            Ib = I0 - ((I0-I2)/(y0-y2))*(y0-y);
+        }
+        else 
+        {
+            Ib = I0 - ceroDiv;
+        }
+
+        if(isnan(Ib))
+            printf("\nFT %f, %f, %i, %i", I0, I2, y0, y2);
+            
         draw_lineI(xStart,y,xEnd,y, Ia, Ib, color);
         xStart -= m1;
         xEnd -= m2;
     }
+    //printf("\n\tFlatT");
 }
 
 color_t light_apply_intensity (color_t original_color, float percentage_factor) {

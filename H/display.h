@@ -26,7 +26,7 @@ void draw_grid(void);                                                           
 void draw_pixel(int x, int y, color_t color);                                                                               //
 void draw_rect(int x, int y, int width, int height, uint32_t color);                                                        //
 vec3_t gouraud(triangle_t* ArrayTriangle, light_t light);                                                                   //
-void gouraudS(triangle_t* ArrayTriangle);                                                                                   //
+void gouraudS(triangle_t* ArrayTriangle, light_t light);                                                                    //
 void draw_line(int x0, int y0, int x1, int y1, color_t color);                                                              //
 void draw_lineI(int x0, int y0, int x1, int y1,  float Ia, float Ib, color_t color);                                        //
 void draw_flat_bottom(int x0, int y0, int x1, int y1, int mx, int my, float I0, float I1, float I2, color_t color);         //
